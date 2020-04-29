@@ -5,10 +5,12 @@ var LopHocPhanSchema = new Shema ({
     IDKhoaHoc: Number,
     MaLopHocPhan: String,
     TenLopHocPhan: String,
-    TongSoGio: Number,
     HocPhi:Number,
+    SoBuoi:Number,
     SiSo:Number,
     MoTa:String,
+    HinhAnh:String,
+    GhiChu:String,
     TrangThai:Number
 });
 var LopHocPhanModel = mongoose.model('lophocphan', LopHocPhanSchema);

@@ -2,15 +2,11 @@ const mongoose = require('mongoose');
 var Shema = mongoose.Schema;
 var LopHocSchema = new Shema ({
     IDLopHoc: Number,
-    MaLopHoc: String,
     IDLopHocPhan: Number,
-    IDGiangVien: Number,
-    IDCaHoc: Number,
-    IDPhongHoc: Number,
-    IDThuTrongTuan: Number,
-    SiSo:Number,
-    ThoiGianBatDau:String,
-    ThoiGianKetThuc:String,
+    MaLopHoc: String,
+    NgayKhaiGiang:String,
+    NgayBeGiang:String,
+    GhiChu:String,
     TrangThai:Number
 });
 var LopHocModel = mongoose.model('lophoc', LopHocSchema);

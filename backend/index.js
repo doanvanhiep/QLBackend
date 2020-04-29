@@ -41,6 +41,11 @@ app.all('/*', function (req, res, next) {
         next();
     }
 });
+app.get('',function(req,res){
+    return res.status(200).send({
+        message:"Request Success"
+    });
+});
 //verifycaptcha
 app.post('/api/verifycaptcha',function(req,res){
     let {response,secret} = req.body;
