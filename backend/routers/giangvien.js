@@ -6,26 +6,27 @@ route.get('/danhsach', async (req, res) => {
     return res.json({result});
 });
 route.post('/them', async (req, res) => {
-    let { HoTen, DiaChi, SoDienThoai, Email, GhiChu} = req.body;
+    let { HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu} = req.body;
     try {
-        let result = await GIANGVIEN_MODEL.add({HoTen,DiaChi,SoDienThoai,Email,GhiChu});
+        let result = await GIANGVIEN_MODEL.add({HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
     }
 });
 
-route.put('/sua', async (req, res) => {
-    let { IDGiangVien,HoTen, DiaChi, SoDienThoai, Email, GhiChu,TrangThai} = req.body;
+route.put('/sua/:IDGiangVien', async (req, res) => {
+    let IDGiangVien=req.params.IDGiangVien;
+    let { HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu} = req.body;
     try {
-        let result = await GIANGVIEN_MODEL.update({IDGiangVien,HoTen,DiaChi,SoDienThoai,Email,GhiChu,TrangThai});
+        let result = await GIANGVIEN_MODEL.update({IDGiangVien,HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
     }
 });
-route.delete('/xoa', async (req, res) => {
-    let { IDGiangVien} = req.body;
+route.delete('/xoa/:IDGiangVien', async (req, res) => {
+    let IDGiangVien=req.params.IDGiangVien;
     try {
         let result = await GIANGVIEN_MODEL.delete(IDGiangVien);
         return res.json({"TrangThai":result})

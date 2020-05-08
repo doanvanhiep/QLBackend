@@ -6,26 +6,27 @@ route.get('/danhsach', async (req, res) => {
     return res.json({result});
 });
 route.post('/them', async (req, res) => {
-    let {TenPhong,SoChoNgoi,GhiChu,TrangThai} = req.body;
+    let {TenPhong,SoChoNgoi,GhiChu} = req.body;
     try {
-        let result = await PHONGHOC_MODEL.add({TenPhong,SoChoNgoi,GhiChu,TrangThai});
+        let result = await PHONGHOC_MODEL.add({TenPhong,SoChoNgoi,GhiChu});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
     }
 });
 
-route.put('/sua', async (req, res) => {
-    let {IDPhongHoc,TenPhong,SoChoNgoi,GhiChu,TrangThai} = req.body;
+route.put('/sua/:IDPhongHoc', async (req, res) => {
+    let IDPhongHoc=req.params.IDPhongHoc;
+    let {TenPhong,SoChoNgoi,GhiChu} = req.body;
     try {
-        let result = await PHONGHOC_MODEL.update({IDPhongHoc,TenPhong,SoChoNgoi,GhiChu,TrangThai});
+        let result = await PHONGHOC_MODEL.update({IDPhongHoc,TenPhong,SoChoNgoi,GhiChu});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
     }
 });
-route.delete('/xoa', async (req, res) => {
-    let { IDPhongHoc} = req.body;
+route.delete('/xoa/:IDPhongHoc', async (req, res) => {
+    let  IDPhongHoc  = req.params.IDPhongHoc;
     try {
         let result = await PHONGHOC_MODEL.delete(IDPhongHoc);
         return res.json({"TrangThai":result})

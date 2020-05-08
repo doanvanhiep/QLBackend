@@ -30,9 +30,14 @@ route.get('/lophoc/:IDLopHocPhan/:IDLopHoc', async (req, res) => {
     let result = await LOPHOC_MODEL.getInfoLopHoc(IDLopHocPhan,IDLopHoc);
     return res.json({result});
 });
+route.get('/getngaykhaigianglophoc/:IDLopHoc', async (req, res) => {
+    let IDLopHoc=req.params.IDLopHoc;
+    let result = await LOPHOC_MODEL.getNgayKhaiGiangLopHoc(IDLopHoc);
+    return res.json({result});
+});
 
 route.post('/sendmomo',async(req,res)=>{
-    let { HoTen, SoDienThoai, Email,SoTien} = req.body;
+    let { HoTen, SoDienThoai, Email,IDKhoaHoc,SoTien} = req.body;
     var currentDate = new Date();
     var date = currentDate.getDate();
     var month = currentDate.getMonth(); //Be careful! January is 0 not 1

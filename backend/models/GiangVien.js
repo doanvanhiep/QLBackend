@@ -13,18 +13,18 @@ module.exports = class GiangVien extends GIANGVIEN_MODEL {
             }
         });
     }
-    static add({ HoTen, DiaChi, SoDienThoai, Email, GhiChu})
+    static add({ HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu})
     {
         return new Promise(async resolve => {
             try {
                 let lastGV=await GIANGVIEN_MODEL.findOne().sort({IDGiangVien:-1});
                 let IDGiangVien=1;
-                if(!lastGV)
+                if(lastGV!=null)
                 {
                     IDGiangVien=lastGV.IDGiangVien+1;
                 }
                 let TrangThai=1
-                let GiangVien = new GIANGVIEN_MODEL({ IDGiangVien, HoTen, DiaChi, SoDienThoai, Email,GhiChu,TrangThai});
+                let GiangVien = new GIANGVIEN_MODEL({ IDGiangVien, HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu,TrangThai});
                 let saveGiangVien = await GiangVien.save();
                 if (!saveGiangVien) return resolve({ error: true, message: 'Không thể thêm giảng viên' });
                 resolve({ error: false, data: GiangVien });
@@ -33,13 +33,13 @@ module.exports = class GiangVien extends GIANGVIEN_MODEL {
             }
         });
     }
-    static update({IDGiangVien, HoTen, DiaChi, SoDienThoai, Email, GhiChu,TrangThai})
+    static update({IDGiangVien, HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu})
     {
         return new Promise(async resolve => {
             try {
                 let checkID = await GIANGVIEN_MODEL.findOne({IDGiangVien:IDGiangVien});
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy giảng viên để sửa' });
-                let updateID = await GIANGVIEN_MODEL.findOneAndUpdate({ IDGiangVien: IDGiangVien }, {HoTen, DiaChi, SoDienThoai, Email, GhiChu,TrangThai}, { new: true });
+                let updateID = await GIANGVIEN_MODEL.findOneAndUpdate({ IDGiangVien: IDGiangVien }, {HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu}, { new: true });
                 resolve({ error: false, data: updateID });
             } catch (error) {
                 return resolve({ error: true, message: error.message });

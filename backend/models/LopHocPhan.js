@@ -1,5 +1,4 @@
 const LOPHOCPHAN_MODEL = require('../database/LopHocPhan-Coll');
-
 module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
     static getList() {
         return new Promise(async resolve => {
@@ -44,6 +43,18 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
             }
         });
     }
+    static getListByIDKhoaHoc(IDKhoaHoc) {
+        return new Promise(async resolve => {
+            try {
+                let data = await LOPHOCPHAN_MODEL.find({TrangThai:1,IDKhoaHoc:parseInt(IDKhoaHoc, 10)})
+                if (!data) 
+                return resolve({ error: true, message: 'Không thể lấy danh sách lớp học phần' });
+                return resolve({ error: false, data: data })
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
     static getLopHocPhanByID(IDLopHocPhan) {
         return new Promise(async resolve => {
             try {
@@ -57,7 +68,7 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
         });
     }
 
-    static add({IDKhoaHoc,MaLopHocPhan,TenLopHocPhan,HocPhi,SoBuoi,SiSo,MoTa,GhiChu})
+    static add({IDKhoaHoc,MaLopHocPhan,TenLopHocPhan,HocPhi,SoBuoi,SiSo,MoTa,HinhAnh,GhiChu})
     {
         return new Promise(async resolve => {
             try {
@@ -68,7 +79,7 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
                 {
                     IDLopHocPhan=lastLopHocPhan.IDLopHocPhan+1;
                 }
-                let LopHocPhan = new LOPHOCPHAN_MODEL({IDLopHocPhan,IDKhoaHoc,MaLopHocPhan,TenLopHocPhan,HocPhi,SoBuoi,SiSo,MoTa,GhiChu,TrangThai});
+                let LopHocPhan = new LOPHOCPHAN_MODEL({IDKhoaHoc,IDLopHocPhan,MaLopHocPhan,TenLopHocPhan,HocPhi,SoBuoi,SiSo,MoTa,HinhAnh,GhiChu,TrangThai});
                 let saveLopHocPhan = await LopHocPhan.save();
                 if (!saveLopHocPhan) return resolve({ error: true, message: 'Không thể thêm lớp học phần' });
                 resolve({ error: false, data: LopHocPhan });
@@ -77,14 +88,14 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
             }
         });
     }
-    static update({IDLopHocPhan,MaLopHocPhan,TenLopHocPhan,HocPhi,SoBuoi,SiSo,MoTa,GhiChu})
+    static update({IDLopHocPhan,MaLopHocPhan,TenLopHocPhan,HocPhi,SoBuoi,SiSo,MoTa,HinhAnh,GhiChu})
     {
         return new Promise(async resolve => {
             try {
                 let checkID = await LOPHOCPHAN_MODEL.findOne({IDLopHocPhan:IDLopHocPhan});
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy lớp học phần để sửa' });
-                let updateID = await LOPHOCPHAN_MODEL.findOneAndUpdate({ IDLopHocPhan: IDLopHocPhan }, {MaLopHocPhan,TenLopHocPhan,HocPhi,SoBuoi,SiSo,MoTa,GhiChu}, { new: true });
-                resolve({ error: false, data: updateID });
+                let updateID = await LOPHOCPHAN_MODEL.findOneAndUpdate({ IDLopHocPhan: IDLopHocPhan }, {MaLopHocPhan,TenLopHocPhan,HocPhi,SoBuoi,SiSo,MoTa,HinhAnh,GhiChu}, { new: true });
+                resolve({ error: false, data: updateID});
             } catch (error) {
                 return resolve({ error: true, message: error.message });
             }
@@ -103,7 +114,7 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
             }
         });
     }
-    static update({IDLopHocPhan,TrangThai})
+    static updateStatus({IDLopHocPhan,TrangThai})
     {
         return new Promise(async resolve => {
             try {

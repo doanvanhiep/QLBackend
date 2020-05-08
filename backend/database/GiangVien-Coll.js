@@ -6,6 +6,8 @@ var GiangVienSchema = new Shema ({
     DiaChi: String,
     SoDienThoai: String,
     Email: String,
+    MoTa: String,
+    HinhAnh: String,
     GhiChu:String,
     TrangThai:Number
 });

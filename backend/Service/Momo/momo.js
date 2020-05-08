@@ -44,7 +44,6 @@ module.exports = function (responseS) {
             requestType: requestType,
             signature: signature,
         })
-        console.log(body);
         //Create the HTTPS objects
         var options = {
             hostname: 'test-payment.momo.vn',

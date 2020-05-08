@@ -3,7 +3,12 @@ const KHOAHOC_MODEL = require('../models/KhoaHoc');
 
 route.get('/danhsach', async (req, res) => {
     let result = await KHOAHOC_MODEL.getList();
-    return res.json({result});
+    return res.json({result}); 
+});
+route.get('/getkhoahocbyid/:IDKhoaHoc', async (req, res) => {
+    let IDKhoaHoc=req.params.IDKhoaHoc;
+    let result = await KHOAHOC_MODEL.getKhoaHocByID(IDKhoaHoc);
+    return res.json({result}); 
 });
 route.post('/them', async (req, res) => {
     let { TenKhoaHoc,GhiChu} = req.body;
@@ -15,8 +20,9 @@ route.post('/them', async (req, res) => {
     }
 });
 
-route.put('/sua', async (req, res) => {
-    let { IDKhoaHoc,TenKhoaHoc,GhiChu} = req.body;
+route.put('/sua/:IDKhoaHoc', async (req, res) => {
+    let IDKhoaHoc=req.params.IDKhoaHoc;
+    let {TenKhoaHoc,GhiChu} = req.body;
     try {
         let result = await KHOAHOC_MODEL.update({ IDKhoaHoc,TenKhoaHoc,GhiChu});
         return res.json({"TrangThai":result})
@@ -24,8 +30,8 @@ route.put('/sua', async (req, res) => {
         return res.json({"TrangThai":result})
     }
 });
-route.delete('/xoa', async (req, res) => {
-    let { IDKhoaHoc} = req.body;
+route.delete('/xoa/:IDKhoaHoc', async (req, res) => {
+    let IDKhoaHoc=req.params.IDKhoaHoc;
     try {
         let result = await KHOAHOC_MODEL.delete(IDKhoaHoc);
         return res.json({"TrangThai":result})

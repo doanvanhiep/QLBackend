@@ -1,10 +1,22 @@
 const KHOAHOC_MODEL = require('../database/KhoaHoc-Coll');
 
 module.exports = class KhoaHoc extends KHOAHOC_MODEL {
+    static getKhoaHocByID(IDKhoaHoc) {
+        return new Promise(async resolve => {
+            try {
+                let data = await KHOAHOC_MODEL.find({TrangThai:1,IDKhoaHoc:IDKhoaHoc}).select({_id:0});
+                if (!data) 
+                return resolve({ error: true, message: 'Không thể lấy danh sách loại khóa học' });
+                return resolve({ error: false, data: data })
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
     static getList() {
         return new Promise(async resolve => {
             try {
-                let data = await KHOAHOC_MODEL.find({TrangThai:1});
+                let data = await KHOAHOC_MODEL.find({TrangThai:1}).select({_id:0});
                 if (!data) 
                 return resolve({ error: true, message: 'Không thể lấy danh sách loại khóa học' });
                 return resolve({ error: false, data: data })
@@ -24,7 +36,7 @@ module.exports = class KhoaHoc extends KHOAHOC_MODEL {
                 {
                     IDKhoaHoc=lastKhoaHoc.IDKhoaHoc+1;
                 }
-                let LoaiKhoaHoc = new KHOAHOC_MODEL({IDKhoaHoc,TenKhoaHoc, GhiChu,TrangThai});
+                let KhoaHoc = new KHOAHOC_MODEL({IDKhoaHoc,TenKhoaHoc, GhiChu,TrangThai});
                 let saveKhoaHoc = await KhoaHoc.save();
                 if (!saveKhoaHoc) return resolve({ error: true, message: 'Không thể thêm khóa học' });
                 resolve({ error: false, data: KhoaHoc });
@@ -53,7 +65,7 @@ module.exports = class KhoaHoc extends KHOAHOC_MODEL {
                 let checkID = await KHOAHOC_MODEL.findOne({IDKhoaHoc:IDKhoaHoc})
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy khóa học để xóa'});
                 let deleteKhoaHoc = await KHOAHOC_MODEL.findOneAndDelete({ IDKhoaHoc: IDKhoaHoc });
-                resolve({ error: false, data: deleteLoaiKhoaHoc })
+                resolve({ error: false, data: deleteKhoaHoc })
             } catch (error) {
                 return resolve({ error: true, message: error.message })
             }

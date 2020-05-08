@@ -20,7 +20,7 @@ module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
                 let lastThongTinLopHoc=await THONGTINLOPHOC_MODEL.findOne().sort({IDThongTinLopHoc:-1});
                 let IDThongTinLopHoc=1;
                 let TrangThai=1;
-                if(lastLopHoc!=null)
+                if(lastThongTinLopHoc!=null)
                 {
                     IDThongTinLopHoc=lastThongTinLopHoc.IDThongTinLopHoc+1;
                 }
@@ -51,8 +51,8 @@ module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
         return new Promise(async resolve => {
             try {
                 let checkID = await THONGTINLOPHOC_MODEL.findOne({IDLopHoc:IDLopHoc})
-                if (!checkID) return resolve({ error: true, message: 'Không tìm thấy thông tin lớp học để xóa'});
-                let deleteLopHoc = await THONGTINLOPHOC_MODEL.findOneAndDelete({ IDLopHoc: IDLopHoc });
+                if (checkID==null) return resolve({ error: true, message: 'Không tìm thấy thông tin lớp học để xóa'});
+                let deleteLopHoc = await THONGTINLOPHOC_MODEL.deleteMany({ IDLopHoc: IDLopHoc });
                 resolve({ error: false, data: deleteLopHoc })
             } catch (error) {
                 return resolve({ error: true, message: error.message })

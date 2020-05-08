@@ -62,32 +62,32 @@ app.post('/api/verifycaptcha',function(req,res){
 //for admin
 app.use('/api/taikhoan', DANGNHAP_ROUTER);
 app.use('/api/frontend', FRONTEND_ROUTER);
-app.use(function (req, res, next) {
-    if(req.headers && req.headers.authorization && String(req.headers.authorization.split(' ')[0].toLowerCase()==='bearer'))
-    {
-        jwt.verify(token,process.env.SECRETKEY||'hiepdv',function(err,decode){
-            if(err)
-            {
-                return res.status(403).send({
-                    message:"Token invalid"
-                });
-            }
-            else
-            {
-                next();
-            }
-        });
-    }
-    else
-    {
-        return res.status(403).send({
-            message:"Unauthorization"
-        });
-    }
-});
+// app.use(function (req, res, next) {
+//     if(req.headers && req.headers.authorization && String(req.headers.authorization.split(' ')[0].toLowerCase()==='bearer'))
+//     {
+//         jwt.verify(token,process.env.SECRETKEY||'hiepdv',function(err,decode){
+//             if(err)
+//             {
+//                 return res.status(403).send({
+//                     message:"Token invalid"
+//                 });
+//             }
+//             else
+//             {
+//                 next();
+//             }
+//         });
+//     }
+//     else
+//     {
+//         return res.status(403).send({
+//             message:"Unauthorization"
+//         });
+//     }
+// });
 app.use('/api/giangvien', GIANGVIEN_ROUTER);
 app.use('/api/hocvien', HOCVIEN_ROUTER);
-app.use('/api/loaikhoahoc', KHOAHOC_ROUTER);
+app.use('/api/khoahoc', KHOAHOC_ROUTER);
 app.use('/api/phonghoc', PHONGHOC_ROUTER);
 app.use('/api/cahoc', CAHOC_ROUTER);
 app.use('/api/lophocphan', LOPHOCPHAN_ROUTER);
