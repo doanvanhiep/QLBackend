@@ -77,7 +77,6 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
           {
             "$group": {
               "_id": "$_id",
-              "IDLopHoc": { "$first": "$IDLopHoc" },
               IDLopHoc: { "$first": "$IDLopHoc" },
               MaLopHoc: { "$first": "$MaLopHoc" },
               NgayKhaiGiang: { "$first": "$NgayKhaiGiang" },

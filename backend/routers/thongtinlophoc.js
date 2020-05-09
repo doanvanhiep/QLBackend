@@ -1,6 +1,11 @@
 const route = require('express').Router();
 const THONTINLOPHOC_MODEL = require('../models/ThongTinLopHoc');
 
+route.get('/thoikhoabieu/:IDGiangVien', async (req, res) => {
+    let IDGiangVien=req.params.IDGiangVien;
+    let result = await THONTINLOPHOC_MODEL.getSchedule(IDGiangVien);
+    return res.json({result});
+});
 route.get('/danhsach', async (req, res) => {
     let result = await THONTINLOPHOC_MODEL.getList();
     return res.json({result});

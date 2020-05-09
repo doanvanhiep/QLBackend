@@ -22,6 +22,7 @@ const QUANTRI_ROUTER = require('./routers/quantri.js');
 const TAIKHOAN_ROUTER = require('./routers/taikhoan.js');
 const DANGNHAP_ROUTER = require('./routers/dangnhap.js');
 const FRONTEND_ROUTER = require('./routers/frontend.js');
+const THONGTINLOPHOC_ROUTER = require('./routers/thongtinlophoc.js');
 
 //verifyCaptcha
 const VERIFY_CAPTCHA=require('./verifycaptcha/verifyCaptcha');
@@ -97,6 +98,7 @@ app.use('/api/chitietlophoc', CHITIETLOPHOC_ROUTER);
 app.use('/api/lienhe', LIENHE_ROUTER);
 app.use('/api/quantri', QUANTRI_ROUTER);
 app.use('/api/taikhoan', TAIKHOAN_ROUTER);
+app.use('/api/thongtinlophoc', THONGTINLOPHOC_ROUTER);
 
 
 
