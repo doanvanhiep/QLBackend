@@ -10,8 +10,8 @@ module.exports = function (responseS) {
         var accessKey = "sfzlXRsBlXvP2AY1"//"F8BBA842ECF85"
         var serectkey = "SOg2mZucehzzhhpvgQ25P9ahoS1wjWpI";//"K951B6PE1waDMi640xX08PD3vg6EkVlz"
         var orderInfo = "Thanh toán học phí Trung Tâm Anh Ngữ";
-        var returnUrl = "https://ttanfrontend.herokuapp.com/thanhtoanmomo";
-        var notifyurl = "https://ttanbackend.herokuapp.com/api/frontend/thanhtoanmomo";
+        var returnUrl = "https://ee685b03.ngrok.io/thanhtoanmomo";
+        var notifyurl = "https://ed929e45.ngrok.io/api/frontend/thanhtoanmomo";
         // var amount = SoTien;
         // var orderId = orderID;
         // var requestId = uuidv1()
@@ -67,7 +67,7 @@ module.exports = function (responseS) {
         });
 
         req.on('error', (e) => {
-            return responseS.json({ error: true, message: `problem with request: ${e.message}` });
+            return responseS.json({ error: true, url: "thanhtoanmomo",queryParams:"Fail" });
         });
 
         // write data to request body

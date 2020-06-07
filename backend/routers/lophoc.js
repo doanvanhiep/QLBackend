@@ -1,9 +1,19 @@
 const route = require('express').Router();
 const LOPHOC_MODEL = require('../models/LopHoc');
 const THONGTINLOPHOC_MODEL = require('../models/ThongTinLopHoc');
+route.get('/danhsachlophoc/', async (req, res) => {
+    let result = await LOPHOC_MODEL.getListLopHoc();
+    return res.json({ result });
+});
+route.get('/danhsachbyidgiangvien/:IDGiangVien', async (req, res) => {
+    let IDGiangVien=req.params.IDGiangVien;
+    console.log(IDGiangVien);
+    // let result = await LOPHOC_MODEL.getListLopHoc(IDLopHocPhan);
+    // return res.json({ result });
+});
 route.get('/danhsach/:IDLopHocPhan', async (req, res) => {
     let IDLopHocPhan = req.params.IDLopHocPhan;
-    let result = await LOPHOC_MODEL.getListLopHoc(IDLopHocPhan);
+    let result = await LOPHOC_MODEL.getListLopHocByIDLopHocPhan(IDLopHocPhan);
     return res.json({ result });
 });
 route.post('/them', async (req, res) => {

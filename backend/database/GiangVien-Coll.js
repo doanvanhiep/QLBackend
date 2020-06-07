@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 var Shema = mongoose.Schema;
 var GiangVienSchema = new Shema ({
     IDGiangVien: Number,
+    TenTaiKhoan:String,
     HoTen: String,
     DiaChi: String,
     SoDienThoai: String,

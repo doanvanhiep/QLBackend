@@ -1,9 +1,11 @@
 const route = require('express').Router();
 const THONTINLOPHOC_MODEL = require('../models/ThongTinLopHoc');
 
-route.get('/thoikhoabieu/:IDGiangVien', async (req, res) => {
+route.get('/thoikhoabieu/:IDGiangVien/:BatDau/:KetThuc', async (req, res) => {
     let IDGiangVien=req.params.IDGiangVien;
-    let result = await THONTINLOPHOC_MODEL.getSchedule(IDGiangVien);
+    let BatDau=req.params.BatDau;
+    let KetThuc=req.params.KetThuc;
+    let result = await THONTINLOPHOC_MODEL.getSchedule(IDGiangVien,BatDau,KetThuc);
     return res.json({result});
 });
 route.get('/danhsach', async (req, res) => {

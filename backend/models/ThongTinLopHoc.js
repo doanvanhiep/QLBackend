@@ -1,7 +1,7 @@
 const THONGTINLOPHOC_MODEL = require('../database/ThongTinLopHoc-Coll');
 
 module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
-    static getSchedule(IDGiangVien) {
+    static getSchedule(IDGiangVien, BatDau, KetThuc) {
         return new Promise(async resolve => {
             try {
                 let dataBegin = await THONGTINLOPHOC_MODEL.aggregate([
@@ -32,18 +32,24 @@ module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
                             from: 'lophocs',
                             localField: 'IDLopHoc',
                             foreignField: 'IDLopHoc',
-                            as: 'idLopHocPhan'
+                            as: 'lh'
                         }
                     },
-                    { $unwind: "$idLopHocPhan" },
+                    { $unwind: "$lh" },
                     {
                         $match:
-                            { "idLopHocPhan.TrangThai": 1 }
+                        {
+                            $and: [
+                                { "lh.TrangThai": 1 },
+                                { "lh.NgayKhaiGiang": { "$lte": KetThuc } },             //ngày khai giảng <= ngày kết thúc của tuần
+                                { "lh.NgayBeGiang": { "$gte": BatDau } },                 // ngày bế giảng >= ngày bắt đầu của tuần
+                            ]
+                        }
                     },//get tenlophocphan
                     {
                         $lookup: {
                             from: 'lophocphans',
-                            localField: 'idLopHocPhan.IDLopHocPhan',
+                            localField: 'lh.IDLopHocPhan',
                             foreignField: 'IDLopHocPhan',
                             as: 'TenLopHocPhan'
                         }
@@ -58,16 +64,16 @@ module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
                         {
                             CaHoc: 1,
                             Thu: 1,
-                            "idLopHocPhan":"$idLopHocPhan.IDLopHocPhan",
+                            "lh": "$lh",
                             "TenPhong": "$TenPhong.TenPhong",
-                            "TenLopHocPhan":"$TenLopHocPhan.TenLopHocPhan"
+                            "TenLopHocPhan": "$TenLopHocPhan.TenLopHocPhan"
                         }
                     }
                     ,
                     {
                         "$group": {
                             "_id": "$_id",
-                            idLopHocPhan:{"$first":"$idLopHocPhan"},
+                            lh: { "$first": "$lh" },
                             CaHoc: { "$first": "$CaHoc" },
                             Thu: { "$first": "$Thu" },
                             TenPhong: { "$first": "$TenPhong" },
@@ -76,22 +82,34 @@ module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
                     }
                 ]);
                 //xử lý thời khóa biểu
+                var temp;
+                var disDay;
+                var daydefault = new Date(BatDau).getDay();
                 let data = [];
-                var objAdd={};
+                var objAdd = {};
                 for (var i = 0; i < 5; i++) {
-                    objAdd={};
+                    objAdd = {};
                     for (var j = 0; j < 6; j++) {
+                        temp = new Date(BatDau);
+                        disDay = 0;
                         var obj = dataBegin.filter(obj => {
-                            return obj.CaHoc === "Ca " + (i + 1) && obj.Thu === "Thứ "+(j+2);
+                            return obj.CaHoc === "Ca " + (i + 1) && obj.Thu === "Thứ " + (j + 2);
                         })[0];
-                        if(obj===undefined)
-                        {
-                            objAdd[j]="";
+                        if (obj === undefined) {
+                            objAdd[j] = "";
                         }
-                        else
-                        {
-                            
-                            objAdd[j]="LỚP: "+obj.TenLopHocPhan+"\nPHÒNG: "+obj.TenPhong;
+                        else {
+                            if ((j + 1) >= daydefault) {
+                                disDay = j + 1 - daydefault;
+                                temp.setDate(temp.getDate() + disDay);
+                            }
+                            else {
+                                disDay = 7 - (daydefault - j - 1);
+                                temp.setDate(temp.getDate() + disDay);
+                            }
+                            if (temp >= new Date(obj.lh.NgayKhaiGiang) && temp <= new Date(obj.lh.NgayBeGiang)) {
+                                objAdd[j] = "LỚP: " + obj.TenLopHocPhan + "\nPHÒNG: " + obj.TenPhong;
+                            }
                         }
                     }
                     data.push(objAdd);

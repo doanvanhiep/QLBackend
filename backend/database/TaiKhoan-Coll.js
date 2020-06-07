@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 var Shema = mongoose.Schema;
 var TaiKhoanSchema = new Shema ({
     IDTaiKhoan: Number,
-    IDQuanTri:Number,
     TenTaiKhoan: String,
     MatKhau: String,
     Quyen:String,
@@ -10,3 +9,5 @@ var TaiKhoanSchema = new Shema ({
 });
 var TaiKhoanModel = mongoose.model('taikhoan', TaiKhoanSchema);
 module.exports = TaiKhoanModel;
+
+//Tên tài khoản format  nv/admin + number, default password sẽ là Tên tài khoản + sdt

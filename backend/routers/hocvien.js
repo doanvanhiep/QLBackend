@@ -6,28 +6,31 @@ route.get('/danhsach', async (req, res) => {
     return res.json({result});
 });
 route.post('/them', async (req, res) => {
-    let { TenHocVien, Email, SoDienThoai, ThoiGianDangKi} = req.body;
+    let { IDLopHoc,TenHocVien, Email, SoDienThoai, ThoiGianDangKi,HinhThucThanhToan,SoTien, TrangThaiThanhToan,NguoiThem} = req.body;
     try {
-        let result = await HOCVIEN_MODEL.add({TenHocVien, Email, SoDienThoai, ThoiGianDangKi});
+        let result = await HOCVIEN_MODEL.add({IDLopHoc,TenHocVien, Email, SoDienThoai, ThoiGianDangKi,HinhThucThanhToan,SoTien, TrangThaiThanhToan,NguoiThem});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
     }
 });
 
-route.put('/sua', async (req, res) => {
-    let { IDHocVien,TenHocVien, Email, SoDienThoai, ThoiGianDangKi} = req.body;
+route.put('/suatrangthaithanhtoan/:IDHocVien/:IDLopHoc', async (req, res) => {
+    let IDHocVien= req.params.IDHocVien;
+    let IDLopHoc= req.params.IDLopHoc;
+    let { TrangThaiThanhToan} = req.body;
     try {
-        let result = await HOCVIEN_MODEL.update({IDHocVien,TenHocVien, Email, SoDienThoai, ThoiGianDangKi});
+        let result = await HOCVIEN_MODEL.update({IDHocVien,IDLopHoc,TrangThaiThanhToan});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
     }
 });
-route.delete('/xoa', async (req, res) => {
-    let { IDHocVien} = req.body;
+route.delete('/xoa/:IDHocVien/:IDLopHoc', async (req, res) => {
+    let IDHocVien= req.params.IDHocVien;
+    let IDLopHoc= req.params.IDLopHoc;
     try {
-        let result = await HOCVIEN_MODEL.delete(IDHocVien);
+        let result = await HOCVIEN_MODEL.delete(IDHocVien,IDLopHoc);
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})

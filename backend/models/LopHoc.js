@@ -1,7 +1,133 @@
 const LOPHOC_MODEL = require('../database/LopHoc-Coll');
 
 module.exports = class LopHoc extends LOPHOC_MODEL {
-  static getListLopHoc(IDLopHocPhan) {
+  static getListLopHoc() {
+    return new Promise(async resolve => {
+      try {
+        let data = await LOPHOC_MODEL.aggregate([
+          {
+            $match:
+            {
+              TrangThai: 1
+            }
+          }, //tìm kiếm lớp học phần
+          {
+            $lookup: {
+              from: 'lophocphans',
+              localField: 'IDLopHocPhan',
+              foreignField: 'IDLopHocPhan',
+              as: 'LHP'
+            }
+          },
+          { $unwind: "$LHP" },
+          {
+            $match:
+              { "LHP.TrangThai": 1 }
+          }, //tìm kiếm học viên
+          {
+            $lookup: {
+              from: 'hocviens',
+              localField: 'IDLopHoc',
+              foreignField: 'IDLopHoc',
+              as: 'HV'
+            }
+          },//tìm kiếm thông tin lớp học
+          {
+            $lookup: {
+              from: 'thongtinlophocs',
+              localField: 'IDLopHoc',
+              foreignField: 'IDLopHoc',
+              as: 'TTLH'
+            }
+          },
+          { $unwind: "$TTLH" },
+          {
+            $match:
+              { "TTLH.TrangThai": 1 }
+          }, //tìm kiếm thông tin giảng viên mỗi lớp học 
+          {
+            $lookup: {
+              from: 'giangviens',
+              localField: 'TTLH.IDGiangVien',
+              foreignField: 'IDGiangVien',
+              as: 'TTLH.TenGiangVien'
+            }
+          },
+          { $unwind: "$TTLH.TenGiangVien" },
+          {
+            $match:
+              { "TTLH.TenGiangVien.TrangThai": 1 }
+          }, //Tìm kiếm thông tin phòng học mỗi lớp học
+          {
+            $lookup: {
+              from: 'phonghocs',
+              localField: 'TTLH.IDPhongHoc',
+              foreignField: 'IDPhongHoc',
+              as: 'TTLH.TenPhongHoc'
+            }
+          },
+          { $unwind: "$TTLH.TenPhongHoc" },
+          {
+            $match:
+              { "TTLH.TenPhongHoc.TrangThai": 1 }
+          },
+          {
+            $project:
+            {
+              IDLopHocPhan:1,
+              IDLopHoc: 1,
+              MaLopHoc: 1,
+              NgayKhaiGiang: 1,
+              NgayBeGiang: 1,
+              GhiChu: 1,
+              TrangThai: 1,
+              ThongTinLopHoc: 1,
+              "TTLH.IDThongTinLopHoc": "$TTLH.IDThongTinLopHoc",
+              "TTLH.CaHoc": "$TTLH.CaHoc",
+              "TTLH.Thu": "$TTLH.Thu",
+              "TTLH.IDPhongHoc": "$TTLH.IDPhongHoc",
+              "TTLH.IDGiangVien": "$TTLH.IDGiangVien",
+              "TTLH.TenGiangVien": "$TTLH.TenGiangVien.HoTen",
+              "TTLH.TenPhongHoc": "$TTLH.TenPhongHoc.TenPhong",
+              "LHP":"$LHP",
+              "HV":"$HV"
+            }
+          },
+          {
+            "$group": {
+              "_id": "$_id",
+              IDLopHocPhan: { "$first": "$IDLopHocPhan" },
+              IDLopHoc: { "$first": "$IDLopHoc" },
+              MaLopHoc: { "$first": "$MaLopHoc" },
+              NgayKhaiGiang: { "$first": "$NgayKhaiGiang" },
+              NgayBeGiang: { "$first": "$NgayBeGiang" },
+              GhiChu: { "$first": "$GhiChu" },
+              TrangThai: { "$first": "$TrangThai" },
+              ThongTinLopHoc: { "$first": "" },
+              "TTLH": { "$push": "$TTLH" },
+              "LHP": { "$first": "$LHP" },
+              "HV": { "$first": "$HV" },
+            }
+          }
+        ]);
+        let res = "";
+        data.forEach(dt => {
+          res = "";
+          dt.TTLH.forEach(element => {
+            res += element.Thu + "-" + element.CaHoc + "-" + element.TenPhongHoc + "-" + element.TenGiangVien ;
+            res +="\n";
+          });
+          dt.ThongTinLopHoc = res;
+        });
+        if (!data)
+          return resolve({ error: true, message: 'Không thể lấy danh sách lớp học' });
+        return resolve({ error: false, data: data })
+      } catch (error) {
+        return resolve({ error: true, message: error.message });
+      }
+    });
+  }
+  static getListLopHocByIDLopHocPhan(IDLopHocPhan) {
     return new Promise(async resolve => {
       try {
         let data = await LOPHOC_MODEL.aggregate([
