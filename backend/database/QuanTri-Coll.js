@@ -6,7 +6,10 @@ var QuanTriSchema = new Shema ({
     HoTen: String,
     SoDienThoai: String,
     Email:String,
-    DiaChi:String
+    DiaChi:String,
+    HinhAnh: String,
+    GhiChu:String,
+    TrangThai:Number
 });
 var QuanTriModel = mongoose.model('quantri', QuanTriSchema);
 module.exports = QuanTriModel;

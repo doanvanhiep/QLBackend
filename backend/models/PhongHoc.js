@@ -1,5 +1,5 @@
 const PHONGHOC_MODEL = require('../database/PhongHoc-Coll');
-
+const THONGTINLOPHOC_MODEL = require('../database/ThongTinLopHoc-Coll');
 module.exports = class PhongHoc extends PHONGHOC_MODEL {
     static getList() {
         return new Promise(async resolve => {
@@ -53,6 +53,7 @@ module.exports = class PhongHoc extends PHONGHOC_MODEL {
                 let checkID = await PHONGHOC_MODEL.findOne({IDPhongHoc:IDPhongHoc})
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy phòng học để xóa'});
                 let deletePhongHoc = await PHONGHOC_MODEL.findOneAndDelete({ IDPhongHoc: IDPhongHoc });
+                await THONGTINLOPHOC_MODEL.deleteMany({ IDPhongHoc: IDPhongHoc });
                 resolve({ error: false, data: deletePhongHoc })
             } catch (error) {
                 return resolve({ error: true, message: error.message })

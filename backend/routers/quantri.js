@@ -6,9 +6,9 @@ route.get('/danhsach', async (req, res) => {
     return res.json({result});
 });
 route.post('/them', async (req, res) => {
-    let {HoTen,SoDienThoai,Email,DiaChi} = req.body;
+    let {HoTen, DiaChi, SoDienThoai, Email, HinhAnh, GhiChu} = req.body;
     try {
-        let result = await QUANTRI_MODEL.add({HoTen,SoDienThoai,Email,DiaChi});
+        let result = await QUANTRI_MODEL.add({HoTen, DiaChi, SoDienThoai, Email, HinhAnh, GhiChu});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
@@ -16,16 +16,17 @@ route.post('/them', async (req, res) => {
 });
 
 route.put('/sua', async (req, res) => {
-    let {IDQuanTri,HoTen,SoDienThoai,Email,DiaChi} = req.body;
+    let {IDQuanTri,HoTen, DiaChi, SoDienThoai, Email, HinhAnh, GhiChu} = req.body;
     try {
-        let result = await QUANTRI_MODEL.update({IDQuanTri,HoTen,SoDienThoai,Email,DiaChi});
+        let result = await QUANTRI_MODEL.update({IDQuanTri,HoTen, DiaChi, SoDienThoai, Email, HinhAnh, GhiChu});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
     }
 });
-route.delete('/xoa', async (req, res) => {
-    let { IDQuanTri} = req.body;
+route.delete('/xoa/:IDQuanTri', async (req, res) => {
+    let IDQuanTri = req.params.IDQuanTri;
+    console.log(IDQuanTri);
     try {
         let result = await QUANTRI_MODEL.delete(IDQuanTri);
         return res.json({"TrangThai":result})

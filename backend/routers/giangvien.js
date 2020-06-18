@@ -5,6 +5,11 @@ route.get('/danhsach', async (req, res) => {
     let result = await GIANGVIEN_MODEL.getList();
     return res.json({result});
 });
+route.get('/getgiangvienbytentaikhoan/:TenTaiKhoan', async (req, res) => {
+    let TenTaiKhoan=req.params.TenTaiKhoan;
+    let result = await GIANGVIEN_MODEL.getGiangVienByTenTaiKhoan(TenTaiKhoan);
+    return res.json({result});
+});
 route.post('/them', async (req, res) => {
     let { HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu} = req.body;
     try {

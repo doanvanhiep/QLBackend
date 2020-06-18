@@ -1,5 +1,5 @@
 const route = require('express').Router();
-const CHITIETLOPHOC_MODEL = require('../models/ChiTietLopHoc');
+const CHITIETLOPHOC_MODEL = require('../models/ChiTietLopHoc'); 
 
 route.get('/danhsach', async (req, res) => {
     let result = await CHITIETLOPHOC_MODEL.getList();

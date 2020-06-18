@@ -5,10 +5,15 @@ route.get('/danhsach', async (req, res) => {
     let result = await TAIKHOAN_MODEL.getList();
     return res.json({result});
 });
+route.get('/getquyentaikhoan/:token', async (req, res) => {
+    let token =req.params.token;
+    let result = await TAIKHOAN_MODEL.getQuyenTenTaiKhoanByToken(token);
+    return res.json({result});
+});
 route.post('/them', async (req, res) => {
-    let {IDQuanTri,TenTaiKhoan,MatKhau,Quyen,TrangThai} = req.body;
+    let {TenTaiKhoan,MatKhau,Quyen} = req.body;
     try {
-        let result = await TAIKHOAN_MODEL.add({IDQuanTri,TenTaiKhoan,MatKhau,Quyen,TrangThai});
+        let result = await TAIKHOAN_MODEL.add({TenTaiKhoan,MatKhau,Quyen});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})

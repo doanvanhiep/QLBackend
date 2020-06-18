@@ -5,6 +5,11 @@ route.get('/danhsachlophoc/', async (req, res) => {
     let result = await LOPHOC_MODEL.getListLopHoc();
     return res.json({ result });
 });
+route.get('/danhsachlophocbyidgiangvien/:IDGiangVien', async (req, res) => {
+    let IDGiangVien=req.params.IDGiangVien;
+    let result = await LOPHOC_MODEL.getListLopHocByIDGiangVien(IDGiangVien);
+    return res.json({ result });
+});
 route.get('/danhsachbyidgiangvien/:IDGiangVien', async (req, res) => {
     let IDGiangVien=req.params.IDGiangVien;
     console.log(IDGiangVien);
@@ -14,6 +19,11 @@ route.get('/danhsachbyidgiangvien/:IDGiangVien', async (req, res) => {
 route.get('/danhsach/:IDLopHocPhan', async (req, res) => {
     let IDLopHocPhan = req.params.IDLopHocPhan;
     let result = await LOPHOC_MODEL.getListLopHocByIDLopHocPhan(IDLopHocPhan);
+    return res.json({ result });
+});
+route.post('/checkphonghocgiangvien', async (req, res) => {
+    let {BatDau, KetThuc, IDPhongHoc,IDGiangVien, CaHoc, Thu}=req.body;
+    let result = await LOPHOC_MODEL.checkPhongHocVaGiangVien(BatDau, KetThuc, IDPhongHoc,IDGiangVien, CaHoc, Thu);
     return res.json({ result });
 });
 route.post('/them', async (req, res) => {
@@ -67,7 +77,6 @@ route.delete('/xoa/:IDLopHoc', async (req, res) => {
     var  IDLopHoc=req.params.IDLopHoc;
     try {
         let result = await LOPHOC_MODEL.delete(IDLopHoc);
-        THONGTINLOPHOC_MODEL.delete(IDLopHoc);
         return res.json({ "TrangThai": result })
     } catch (error) {
         return res.json({ "TrangThai": result })

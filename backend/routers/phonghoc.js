@@ -1,6 +1,5 @@
 const route = require('express').Router();
 const PHONGHOC_MODEL = require('../models/PhongHoc');
-
 route.get('/danhsach', async (req, res) => {
     let result = await PHONGHOC_MODEL.getList();
     return res.json({result});
