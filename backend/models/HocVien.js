@@ -7,12 +7,6 @@ module.exports = class HocVien extends HOCVIEN_MODEL {
                 //let data = await HOCVIEN_MODEL.find({ TrangThai: 1 }).sort({ ThoiGianDangKi: -1 })
                 let data = await HOCVIEN_MODEL.aggregate([
                     {
-                        $match:
-                        {
-                            TrangThai: 1
-                        }
-                    },
-                    {
                         $lookup: {
                             from: 'lophocs',
                             localField: 'IDLopHoc',
@@ -157,7 +151,19 @@ module.exports = class HocVien extends HOCVIEN_MODEL {
             try {
                 let checkID = await HOCVIEN_MODEL.findOne({ IDHocVien: IDHocVien, IDLopHoc: IDLopHoc });
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy học viên để sửa' });
-                let updateID = await HOCVIEN_MODEL.findOneAndUpdate({ IDHocVien: IDHocVien }, { TrangThaiThanhToan }, { new: true });
+                let updateID = await HOCVIEN_MODEL.findOneAndUpdate({ IDHocVien: IDHocVien , IDLopHoc: IDLopHoc}, { TrangThaiThanhToan }, { new: true });
+                resolve({ error: false, data: updateID });
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
+    static updateStatus({ IDHocVien, IDLopHoc, TrangThai }) {
+        return new Promise(async resolve => {
+            try {
+                let checkID = await HOCVIEN_MODEL.findOne({ IDHocVien: IDHocVien, IDLopHoc: IDLopHoc });
+                if (!checkID) return resolve({ error: true, message: 'Không tìm thấy học viên để sửa' });
+                let updateID = await HOCVIEN_MODEL.findOneAndUpdate({ IDHocVien: IDHocVien , IDLopHoc: IDLopHoc}, { TrangThai }, { new: true });
                 resolve({ error: false, data: updateID });
             } catch (error) {
                 return resolve({ error: true, message: error.message });
@@ -181,7 +187,7 @@ module.exports = class HocVien extends HOCVIEN_MODEL {
             try {
                 let checkID = await HOCVIEN_MODEL.findOne({ IDHocVien: IDHocVien, IDLopHoc: IDLopHoc })
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy học viên để xóa' });
-                let deleteHocVien = await HOCVIEN_MODEL.findOneAndDelete({ IDHocVien: IDHocVien });
+                let deleteHocVien = await HOCVIEN_MODEL.findOneAndDelete({ IDHocVien: IDHocVien, IDLopHoc: IDLopHoc});
                 resolve({ error: false, data: deleteHocVien })
             } catch (error) {
                 return resolve({ error: true, message: error.message })

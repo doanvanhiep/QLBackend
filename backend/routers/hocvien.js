@@ -35,12 +35,19 @@ route.post('/them', async (req, res) => {
     }
 });
 
-route.put('/suatrangthaithanhtoan/:IDHocVien/:IDLopHoc', async (req, res) => {
-    let IDHocVien= req.params.IDHocVien;
-    let IDLopHoc= req.params.IDLopHoc;
-    let { TrangThaiThanhToan} = req.body;
+route.put('/suatrangthaithanhtoan', async (req, res) => {
+    var {IDHocVien,IDLopHoc,TrangThaiThanhToan} = req.body;
     try {
-        let result = await HOCVIEN_MODEL.update({IDHocVien,IDLopHoc,TrangThaiThanhToan});
+        let result = await HOCVIEN_MODEL.updateStatusPay({IDHocVien,IDLopHoc,TrangThaiThanhToan});
+        return res.json({"TrangThai":result})
+    } catch (error) {
+        return res.json({"TrangThai":result})
+    }
+});
+route.put('/suatrangthai', async (req, res) => {
+    var {IDHocVien,IDLopHoc,TrangThai} = req.body;
+    try {
+        let result = await HOCVIEN_MODEL.updateStatus({IDHocVien,IDLopHoc,TrangThai});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})
