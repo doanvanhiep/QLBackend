@@ -378,12 +378,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
         let data = await LOPHOC_MODEL.aggregate([
           {
             $match:
-            {
-              $and: [
-                { IDLopHocPhan: parseInt(IDLopHocPhan, 10) },
-                { TrangThai: 1 }
-              ]
-            }
+            { IDLopHocPhan: parseInt(IDLopHocPhan, 10) }
           }, //tìm kiếm lớp học theo ID lớp học phần
           {
             $lookup: {
@@ -394,10 +389,10 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
             }
           },
           { $unwind: "$TTLH" },
-          {
+          /* {
             $match:
-              { "TTLH.TrangThai": 1 }
-          }, //tìm kiếm thông tin giảng viên mỗi lớp học 
+              { "TTLH.TrangThai": 0 }
+          }, */ //tìm kiếm thông tin giảng viên mỗi lớp học 
           {
             $lookup: {
               from: 'giangviens',
@@ -627,12 +622,17 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
       }
     });
   }
-  static updatestatus({ IDLopHoc, TrangThai }) {
+  static updatestatus( IDLopHoc, TrangThai ) {
     return new Promise(async resolve => {
       try {
         let checkID = await LOPHOC_MODEL.findOne({ IDLopHoc: IDLopHoc });
         if (!checkID) return resolve({ error: true, message: 'Không tìm thấy lớp học để sửa' });
         let updateID = await LOPHOC_MODEL.findOneAndUpdate({ IDLopHoc: IDLopHoc }, { TrangThai }, { new: true });
+        await THONGTINLOPHOC_MODEL.updateMany({ IDLopHoc: IDLopHoc }, { TrangThai }, { new: true });
+        if(TrangThai==0)
+        {
+          await HOCVIEN_MODEL.updateMany({ IDLopHoc: IDLopHoc }, { TrangThai }, { new: true });
+        }
         resolve({ error: false, data: updateID });
       } catch (error) {
         return resolve({ error: true, message: error.message });

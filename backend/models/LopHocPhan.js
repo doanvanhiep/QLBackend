@@ -45,10 +45,22 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
             }
         });
     }
+    static getAllLopHocPhanDangKichHoat() {
+        return new Promise(async resolve => {
+            try {
+                let data = await LOPHOCPHAN_MODEL.find({ TrangThai: 1})
+                if (!data)
+                    return resolve({ error: true, message: 'Không thể lấy danh sách lớp học phần' });
+                return resolve({ error: false, data: data })
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
     static getListByIDKhoaHoc(IDKhoaHoc) {
         return new Promise(async resolve => {
             try {
-                let data = await LOPHOCPHAN_MODEL.find({ TrangThai: 1, IDKhoaHoc: parseInt(IDKhoaHoc, 10) })
+                let data = await LOPHOCPHAN_MODEL.find({ IDKhoaHoc: parseInt(IDKhoaHoc, 10) })
                 if (!data)
                     return resolve({ error: true, message: 'Không thể lấy danh sách lớp học phần' });
                 return resolve({ error: false, data: data })
@@ -101,11 +113,7 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
         });
     }
     static delete(IDLopHocPhan) {
-        async function asyncForEach(array, callback) {
-            for (let index = 0; index < array.length; index++) {
-                await callback(array[index], index, array);
-            }
-        }
+        
         return new Promise(async resolve => {
             try {
                 let checkID = await LOPHOCPHAN_MODEL.findOne({ IDLopHocPhan: IDLopHocPhan })
@@ -126,16 +134,32 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
             }
         });
     }
-    static updateStatus({ IDLopHocPhan, TrangThai }) {
+    static updateStatus(IDLopHocPhan, TrangThai) {
         return new Promise(async resolve => {
             try {
                 let checkID = await LOPHOCPHAN_MODEL.findOne({ IDLopHocPhan: IDLopHocPhan });
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy lớp học phần để sửa' });
                 let updateID = await LOPHOCPHAN_MODEL.findOneAndUpdate({ IDLopHocPhan: IDLopHocPhan }, { TrangThai }, { new: true });
-                resolve({ error: false, data: updateID });
+                let listLH = await LOPHOC_MODELBD.find({ IDLopHocPhan: IDLopHocPhan });
+                const start = async () => {
+                    if (listLH.length > 0) {
+                        await asyncForEach(listLH, async (lh) => {
+                            await LOPHOC_MODEL.updatestatus(lh.IDLopHoc, TrangThai);
+                        });
+                    }
+                    resolve({ error: false, data: updateID })
+                };
+                start();
             } catch (error) {
                 return resolve({ error: true, message: error.message });
             }
         });
+    }
+}
+
+    
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
     }
 }

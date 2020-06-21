@@ -5,6 +5,10 @@ route.get('/danhsach', async (req, res) => {
     let result = await KHOAHOC_MODEL.getList();
     return res.json({result}); 
 });
+route.get('/getallkhoahockichhoat', async (req, res) => {
+    let result = await KHOAHOC_MODEL.getListallkhoahockichhoat();
+    return res.json({result}); 
+});
 route.get('/getkhoahocbyid/:IDKhoaHoc', async (req, res) => {
     let IDKhoaHoc=req.params.IDKhoaHoc;
     let result = await KHOAHOC_MODEL.getKhoaHocByID(IDKhoaHoc);
@@ -39,10 +43,10 @@ route.delete('/xoa/:IDKhoaHoc', async (req, res) => {
         return res.json({"TrangThai":result})
     }
 });
-route.put('/sua', async (req, res) => {
+route.put('/suatrangthai', async (req, res) => {
     let { IDKhoaHoc,TrangThai} = req.body;
     try {
-        let result = await KHOAHOC_MODEL.update({ IDKhoaHoc,TrangThai});
+        let result = await KHOAHOC_MODEL.updatestatus({ IDKhoaHoc,TrangThai});
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})

@@ -17,6 +17,18 @@ module.exports = class KhoaHoc extends KHOAHOC_MODEL {
     static getList() {
         return new Promise(async resolve => {
             try {
+                let data = await KHOAHOC_MODEL.find().select({ _id: 0 });
+                if (!data)
+                    return resolve({ error: true, message: 'Không thể lấy danh sách loại khóa học' });
+                return resolve({ error: false, data: data })
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
+    static getListallkhoahockichhoat() {
+        return new Promise(async resolve => {
+            try {
                 let data = await KHOAHOC_MODEL.find({ TrangThai: 1 }).select({ _id: 0 });
                 if (!data)
                     return resolve({ error: true, message: 'Không thể lấy danh sách loại khóa học' });
@@ -57,11 +69,6 @@ module.exports = class KhoaHoc extends KHOAHOC_MODEL {
         });
     }
     static delete(IDKhoaHoc) {
-        async function asyncForEach(array, callback) {
-            for (let index = 0; index < array.length; index++) {
-                await callback(array[index], index, array);
-            }
-        }
         return new Promise(async resolve => {
             try {
                 let checkID = await KHOAHOC_MODEL.findOne({ IDKhoaHoc: IDKhoaHoc })
@@ -87,11 +94,25 @@ module.exports = class KhoaHoc extends KHOAHOC_MODEL {
             try {
                 let checkID = await KHOAHOC_MODEL.findOne({ IDKhoaHoc: IDKhoaHoc });
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy khóa học để sửa' });
-                let updateID = await KHOAHOC_MODEL.findOneAndUpdate({ IDKhoaHoc: IDKhoaHoc }, { TrangTshai }, { new: true });
-                resolve({ error: false, data: updateID });
+                let updateID = await KHOAHOC_MODEL.findOneAndUpdate({ IDKhoaHoc: IDKhoaHoc }, { TrangThai }, { new: true });
+                let listLHP = await LOPHOC_MODELBD.find({ IDKhoaHoc: IDKhoaHoc });
+                const start = async () => {
+                    if (listLHP.length > 0) {
+                        await asyncForEach(listLHP, async (lhp) => {
+                            await LOPHOCPHAN_MODEL.updateStatus(lhp.IDLopHocPhan,TrangThai);
+                        });
+                    }
+                    resolve({ error: false, data: updateID })
+                };
+                start();
             } catch (error) {
                 return resolve({ error: true, message: error.message });
             }
         });
+    }
+}
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
     }
 }
