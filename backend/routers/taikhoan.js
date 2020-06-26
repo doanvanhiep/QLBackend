@@ -19,6 +19,15 @@ route.post('/them', async (req, res) => {
         return res.json({"TrangThai":result})
     }
 });
+route.put('/doimatkhau', async (req, res) => {
+    let {TenTaiKhoan,MatKhauCu,MatKhauMoi} = req.body;
+    try {
+        let result = await TAIKHOAN_MODEL.changePassword({TenTaiKhoan,MatKhauCu,MatKhauMoi});
+        return res.json({"TrangThai":result})
+    } catch (error) {
+        return res.json({"TrangThai":result})
+    }
+});
 
 route.put('/sua', async (req, res) => {
     let {IDTaiKhoan,IDQuanTri,TenTaiKhoan,MatKhau,Quyen,TrangThai} = req.body;

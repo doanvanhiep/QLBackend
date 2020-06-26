@@ -26,6 +26,11 @@ route.post('/checkphonghocgiangvien', async (req, res) => {
     let result = await LOPHOC_MODEL.checkPhongHocVaGiangVien(BatDau, KetThuc, IDPhongHoc,IDGiangVien, CaHoc, Thu);
     return res.json({ result });
 });
+route.post('/recommendphonghocgiangvien', async (req, res) => {
+    let {BatDau, KetThuc,  CaHoc, Thu}=req.body;
+    let result = await LOPHOC_MODEL.recommendPhongHocVaGiangVien(BatDau, KetThuc, CaHoc, Thu);
+    return res.json({ result });
+});
 route.post('/them', async (req, res) => {
     let data = JSON.parse(req.body.data);
     let IDLopHocPhan = req.body.IDLopHocPhan;

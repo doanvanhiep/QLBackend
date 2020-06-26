@@ -19,6 +19,18 @@ module.exports = class QuanTri extends QUANTRI_MODEL {
       }
     });
   }
+  static getThongTinByTenTaiKhoan(TenTaiKhoan) {
+    return new Promise(async resolve => {
+      try {
+        let data = await QUANTRI_MODEL.find({ TrangThai: 1,TenTaiKhoan:TenTaiKhoan });
+        if (!data)
+          return resolve({ error: true, message: 'Không thể lấy danh sách quản trị' });
+        return resolve({ error: false, data: data })
+      } catch (error) {
+        return resolve({ error: true, message: error.message });
+      }
+    });
+  }
   static add({ HoTen, DiaChi, SoDienThoai, Email, HinhAnh, GhiChu }) {
     return new Promise(async resolve => {
       try {
@@ -54,6 +66,18 @@ module.exports = class QuanTri extends QUANTRI_MODEL {
         let checkID = await QUANTRI_MODEL.findOne({ IDQuanTri:IDQuanTri });
         if (!checkID) return resolve({ error: true, message: 'Không tìm thấy quản trị để sửa' });
         let updateID = await QUANTRI_MODEL.findOneAndUpdate({ IDQuanTri: IDQuanTri }, { HoTen, DiaChi, SoDienThoai, Email, HinhAnh, GhiChu }, { new: true });
+        return resolve({ error: false, data: updateID });
+      } catch (error) {
+        return resolve({ error: true, message: error.message });
+      }
+    });
+  }
+  static updateThongTinCaNhan({ TenTaiKhoan,HoTen, DiaChi, SoDienThoai, Email, HinhAnh }) {
+    return new Promise(async resolve => {
+      try {
+        let checkID = await QUANTRI_MODEL.findOne({ TenTaiKhoan:TenTaiKhoan });
+        if (!checkID) return resolve({ error: true, message: 'Không tìm thấy quản trị để sửa' });
+        let updateID = await QUANTRI_MODEL.findOneAndUpdate({ TenTaiKhoan: TenTaiKhoan }, { HoTen, DiaChi, SoDienThoai, Email, HinhAnh }, { new: true });
         return resolve({ error: false, data: updateID });
       } catch (error) {
         return resolve({ error: true, message: error.message });

@@ -7,7 +7,7 @@ var nodemailer = require('nodemailer');
 route.post('/send', uploadfile.array('file'), async (req, res) => {
     let fileObject = req.files;
     let attachments = [];
-    if (fileObject != undefined) {
+    if (fileObject != undefined && fileObject.length>0) {
         const start = async () => {
             await  fileObject.forEach(function(f,i){
                 let originalname=f.originalname;
@@ -16,13 +16,13 @@ route.post('/send', uploadfile.array('file'), async (req, res) => {
         }
         await start();
     }
-    var maillist=[
+    /* var maillist=[
         'doanvanhiepebn951@gmail.com',
         '16110074@student.hcmute.edu.vn'
-    ]
+    ] */
         var Mail = new ServiceMail(nodemailer)
-        //let result = await Mail.SendMail(req.params.subject, req.params.content, attachments, req.params.maillist);
-        let result = await Mail.SendMail("req.params.subject", "req.params.content", attachments, maillist);
+        let result = await Mail.SendMail(req.body.subject, req.body.content, attachments, req.body.maillist.split(','));
+        //let result = await Mail.SendMail("req.params.subject", "req.params.content", attachments, maillist);
         return res.json({ result });
     });
 module.exports = route;

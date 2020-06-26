@@ -64,6 +64,8 @@ app.post('/api/verifycaptcha',function(req,res){
 //for admin
 app.use('/api/taikhoan', DANGNHAP_ROUTER);
 app.use('/api/frontend', FRONTEND_ROUTER);
+
+app.use('/api/sendmail', SENDMAIL_ROUTER);
 // app.use(function (req, res, next) {
 //     if(req.headers && req.headers.authorization && String(req.headers.authorization.split(' ')[0].toLowerCase()==='bearer'))
 //     {
@@ -100,7 +102,6 @@ app.use('/api/lienhe', LIENHE_ROUTER);
 app.use('/api/quantri', QUANTRI_ROUTER);
 app.use('/api/taikhoan', TAIKHOAN_ROUTER);
 app.use('/api/thongtinlophoc', THONGTINLOPHOC_ROUTER);
-app.use('/api/sendmail', SENDMAIL_ROUTER);
 
 
 

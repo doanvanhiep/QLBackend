@@ -5,7 +5,7 @@ const THONGTINLOPHOC_MODEL = require('../database/ThongTinLopHoc-Coll');
 const TAIKHOAN_MODELBD = require('../database/TaiKhoan-Coll');
 //send Mail
 var multer = require('multer');
-const uploadfile = multer(); 
+const uploadfile = multer();
 var nodemailer = require('nodemailer');
 module.exports = class GiangVien extends GIANGVIEN_MODEL {
     static getList() {
@@ -23,7 +23,7 @@ module.exports = class GiangVien extends GIANGVIEN_MODEL {
     static getGiangVienByTenTaiKhoan(TenTaiKhoan) {
         return new Promise(async resolve => {
             try {
-                let data = await GIANGVIEN_MODEL.find({ TrangThai: 1,TenTaiKhoan:TenTaiKhoan });
+                let data = await GIANGVIEN_MODEL.find({ TrangThai: 1, TenTaiKhoan: TenTaiKhoan });
                 if (!data)
                     return resolve({ error: true, message: 'Không tìm thấy giảng viên' });
                 return resolve({ error: false, data: data })
@@ -73,6 +73,18 @@ module.exports = class GiangVien extends GIANGVIEN_MODEL {
             }
         });
     }
+    static updateThongTinCaNhan({ TenTaiKhoan,HoTen, DiaChi, SoDienThoai, Email, HinhAnh}) {
+        return new Promise(async resolve => {
+            try {
+                let checkID = await GIANGVIEN_MODEL.findOne({ TenTaiKhoan: TenTaiKhoan });
+                if (!checkID) return resolve({ error: true, message: 'Không tìm thấy giảng viên để sửa' });
+                let updateID = await GIANGVIEN_MODEL.findOneAndUpdate({ TenTaiKhoan: TenTaiKhoan }, { HoTen, DiaChi, SoDienThoai, Email, HinhAnh }, { new: true });
+                resolve({ error: false, data: updateID });
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
     static delete(IDGiangVien) {
         return new Promise(async resolve => {
             try {
@@ -80,7 +92,7 @@ module.exports = class GiangVien extends GIANGVIEN_MODEL {
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy giảng viên để xóa' });
                 let deleteGiangVien = await GIANGVIEN_MODEL.findOneAndDelete({ IDGiangVien: IDGiangVien });
                 await THONGTINLOPHOC_MODEL.deleteMany({ IDGiangVien: IDGiangVien });
-                await TAIKHOAN_MODELBD.deleteOne({TenTaiKhoan:checkID.TenTaiKhoan})
+                await TAIKHOAN_MODELBD.deleteOne({ TenTaiKhoan: checkID.TenTaiKhoan })
                 resolve({ error: false, data: deleteGiangVien })
             } catch (error) {
                 return resolve({ error: true, message: error.message })

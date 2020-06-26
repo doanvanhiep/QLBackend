@@ -30,6 +30,15 @@ route.put('/sua/:IDGiangVien', async (req, res) => {
         return res.json({"TrangThai":result})
     }
 });
+route.put('/suathongtincanhan', async (req, res) => {
+    let { TenTaiKhoan,HoTen, DiaChi, SoDienThoai, Email, HinhAnh} = req.body;
+    try {
+        let result = await GIANGVIEN_MODEL.updateThongTinCaNhan({TenTaiKhoan, HoTen, DiaChi, SoDienThoai, Email, HinhAnh});
+        return res.json({"TrangThai":result})
+    } catch (error) {
+        return res.json({"TrangThai":result})
+    }
+});
 route.delete('/xoa/:IDGiangVien', async (req, res) => {
     let IDGiangVien=req.params.IDGiangVien;
     try {

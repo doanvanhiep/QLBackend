@@ -95,10 +95,31 @@ module.exports = class TaiKhoan extends TAIKHOAN_MODEL {
                     let mk = tenTK[0]['MatKhau'];
                     if (passwordHash.verify(MatKhau, mk)) {
                         var dataresult = tenTK[0];
-                        var token = jwt.sign({ quyen: dataresult["Quyen"],tentaikhoan: dataresult["TenTaiKhoan"] }, process.env.SECRETKEY || 'hiepdv', { algorithm: process.env.ALGRORITHM || 'HS256', expiresIn: process.env.EXPIRESIN || '3h' });
+                        var token = jwt.sign({ quyen: dataresult["Quyen"], tentaikhoan: dataresult["TenTaiKhoan"] }, process.env.SECRETKEY || 'hiepdv', { algorithm: process.env.ALGRORITHM || 'HS256', expiresIn: process.env.EXPIRESIN || '3h' });
                         return resolve({ error: false, data: { token: token, datas: { TenTaiKhoan: dataresult["TenTaiKhoan"], Quyen: dataresult["Quyen"] } } });
                     }
                     return resolve({ error: true, message: 'Mật khẩu không đúng' });
+                }
+                return resolve({ error: true, message: 'Tài khoản không tồn tại' });
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
+    static changePassword({TenTaiKhoan,MatKhauCu,MatKhauMoi})
+    {
+        return new Promise(async resolve => {
+            try {
+                let tenTK = await TAIKHOAN_MODEL.find({ TenTaiKhoan: TenTaiKhoan });
+                if (tenTK != null && tenTK.length > 0) {
+                    let mk = tenTK[0]['MatKhau'];
+                    if (passwordHash.verify(MatKhauCu, mk)) {
+                        //update new Password
+                        let MatKhau = passwordHash.generate(MatKhauMoi);
+                        let updateID = await TAIKHOAN_MODEL.findOneAndUpdate({ TenTaiKhoan: TenTaiKhoan}, { MatKhau }, { new: true });
+                        return resolve({ error: false, message: 'Đổi mật khẩu thành công' });
+                    }
+                    return resolve({ error: true, message: 'Mật khẩu cũ không đúng' });
                 }
                 return resolve({ error: true, message: 'Tài khoản không tồn tại' });
             } catch (error) {

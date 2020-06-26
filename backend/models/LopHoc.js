@@ -1,7 +1,114 @@
 const LOPHOC_MODEL = require('../database/LopHoc-Coll');
 const HOCVIEN_MODEL = require('../database/HocVien-Coll');
 const THONGTINLOPHOC_MODEL = require('../database/ThongTinLopHoc-Coll');
+const PHONGHOC_MODEL = require('../models/PhongHoc');
+const GIANGVIEN_MODEL = require('../models/GiangVien');
 module.exports = class LopHoc extends LOPHOC_MODEL {
+  static recommendPhongHocVaGiangVien(BatDau, KetThuc, CaHoc, Thu) {
+    return new Promise(async resolve => {
+      let resultPH = await PHONGHOC_MODEL.getList();
+      if (resultPH.error) {
+        return resolve({ error: true, message: "Hệ thống lỗi không thể gợi ý phòng học" });
+      }
+      resultPH = resultPH.data;
+
+      let dataPH = await LOPHOC_MODEL.aggregate([
+        {
+          $match:
+          {
+            $and: [
+              { TrangThai: 1 },
+              { NgayKhaiGiang: { "$lte": KetThuc } },             //ngày khai giảng <= ngày kết thúc của tuần
+              { NgayBeGiang: { "$gte": BatDau } },                 // ngày bế giảng >= ngày bắt đầu của tuần
+            ]
+          }
+        },
+        {
+          $lookup: {
+            from: 'thongtinlophocs',
+            localField: 'IDLopHoc',
+            foreignField: 'IDLopHoc',
+            as: 'ttlh'
+          }
+        },
+        { $unwind: "$ttlh" },
+        {
+          $match:
+          {
+            $and: [
+              { "ttlh.TrangThai": 1 },
+              { "ttlh.CaHoc": CaHoc },
+              { "ttlh.Thu": Thu }
+            ]
+          }
+        },
+        {
+          $project:
+          {
+            "IDPhongHoc": "$ttlh.IDPhongHoc"
+          }
+        }
+      ]);
+      let idPhongHoc = [];
+      for (let index = 0; index < dataPH.length; index++) {
+        idPhongHoc.push(dataPH[index].IDPhongHoc);
+      }
+      resultPH = resultPH.filter(ph => {
+        return !idPhongHoc.includes(ph.IDPhongHoc);
+      })
+      //gv
+      let resultGV = await GIANGVIEN_MODEL.getList();
+      if (resultGV.error) {
+        return resolve({ error: true, message: "Hệ thống lỗi không thể gợi ý giảng viên" });
+      }
+      resultGV = resultGV.data;
+      let dataGV = await LOPHOC_MODEL.aggregate([
+        {
+          $match:
+          {
+            $and: [
+              { TrangThai: 1 },
+              { NgayKhaiGiang: { "$lte": KetThuc } },             //ngày khai giảng <= ngày kết thúc của tuần
+              { NgayBeGiang: { "$gte": BatDau } },                 // ngày bế giảng >= ngày bắt đầu của tuần
+            ]
+          }
+        },
+        {
+          $lookup: {
+            from: 'thongtinlophocs',
+            localField: 'IDLopHoc',
+            foreignField: 'IDLopHoc',
+            as: 'ttlh'
+          }
+        },
+        { $unwind: "$ttlh" },
+        {
+          $match:
+          {
+            $and: [
+              { "ttlh.TrangThai": 1 },
+              { "ttlh.CaHoc": CaHoc },
+              { "ttlh.Thu": Thu }
+            ]
+          }
+        },
+        {
+          $project:
+          {
+            "IDGiangVien": "$ttlh.IDGiangVien"
+          }
+        }
+      ]);
+      let idGiangVien = [];
+      for (let index = 0; index < dataGV.length; index++) {
+        idGiangVien.push(dataGV[index].IDGiangVien);
+      }
+      resultGV = resultGV.filter(gv => {
+        return !idGiangVien.includes(gv.IDGiangVien);
+      })
+      return resolve({ error: false, ListGiangVien: resultGV, ListPhongHoc:resultPH});
+    });
+  }
   static checkPhongHocVaGiangVien(BatDau, KetThuc, IDPhongHoc, IDGiangVien, CaHoc, Thu) {
     return new Promise(async resolve => {
       try {
@@ -16,7 +123,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
                 { NgayBeGiang: { "$gte": BatDau } },                 // ngày bế giảng >= ngày bắt đầu của tuần
               ]
             }
-          }, //tìm kiếm lớp học theo ID lớp học phần
+          },
           {
             $lookup: {
               from: 'thongtinlophocs',
@@ -69,7 +176,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
                 { NgayBeGiang: { "$gte": BatDau } },                 // ngày bế giảng >= ngày bắt đầu của tuần
               ]
             }
-          }, //tìm kiếm lớp học theo ID lớp học phần
+          },
           {
             $lookup: {
               from: 'thongtinlophocs',
@@ -378,7 +485,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
         let data = await LOPHOC_MODEL.aggregate([
           {
             $match:
-            { IDLopHocPhan: parseInt(IDLopHocPhan, 10) }
+              { IDLopHocPhan: parseInt(IDLopHocPhan, 10) }
           }, //tìm kiếm lớp học theo ID lớp học phần
           {
             $lookup: {
@@ -622,15 +729,14 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
       }
     });
   }
-  static updatestatus( IDLopHoc, TrangThai ) {
+  static updatestatus(IDLopHoc, TrangThai) {
     return new Promise(async resolve => {
       try {
         let checkID = await LOPHOC_MODEL.findOne({ IDLopHoc: IDLopHoc });
         if (!checkID) return resolve({ error: true, message: 'Không tìm thấy lớp học để sửa' });
         let updateID = await LOPHOC_MODEL.findOneAndUpdate({ IDLopHoc: IDLopHoc }, { TrangThai }, { new: true });
         await THONGTINLOPHOC_MODEL.updateMany({ IDLopHoc: IDLopHoc }, { TrangThai }, { new: true });
-        if(TrangThai==0)
-        {
+        if (TrangThai == 0) {
           await HOCVIEN_MODEL.updateMany({ IDLopHoc: IDLopHoc }, { TrangThai }, { new: true });
         }
         resolve({ error: false, data: updateID });

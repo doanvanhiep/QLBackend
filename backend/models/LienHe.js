@@ -4,7 +4,7 @@ module.exports = class LienHe extends LIENHE_MODEL {
     static getList() {
         return new Promise(async resolve => {
             try {
-                let data = await LIENHE_MODEL.find({TrangThai:1});
+                let data = await LIENHE_MODEL.find();
                 if (!data) 
                 return resolve({ error: true, message: 'Không thể lấy danh sách liên hệ' });
                 return resolve({ error: false, data: data })
@@ -13,7 +13,7 @@ module.exports = class LienHe extends LIENHE_MODEL {
             }
         });
     }
-    static add({HoTen,Email,SoDienThoai,NoiDung})
+    static add({HoTen,Email,SoDienThoai,NoiDung,ThoiGian})
     {
         return new Promise(async resolve => {
             try {
@@ -23,8 +23,9 @@ module.exports = class LienHe extends LIENHE_MODEL {
                 {
                     IDLienHe=lastLienHe.IDLienHe+1;
                 }
-                let TrangThai=1;
-                let LienHe = new LIENHE_MODEL({IDLienHe,HoTen,Email,SoDienThoai,NoiDung,TrangThai});
+                let TrangThai=0;
+                let ThongTinCapNhap="";
+                let LienHe = new LIENHE_MODEL({IDLienHe,HoTen,Email,SoDienThoai,NoiDung,ThoiGian,ThongTinCapNhap,TrangThai});
                 let saveLienHe = await LienHe.save();
                 if (!saveLienHe) return resolve({ error: true, message: 'Không thể thêm liên hệ' });
                 resolve({ error: false, data: LienHe });
@@ -59,13 +60,13 @@ module.exports = class LienHe extends LIENHE_MODEL {
             }  
         });
     }
-    static updateStatus({IDLienHe,TrangThai})
+    static updateStatus({IDLienHe,TrangThai,ThongTinCapNhap})
     {
         return new Promise(async resolve => {
             try {
                 let checkID = await LIENHE_MODEL.findOne({IDLienHe:IDLienHe});
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy liên hệ để sửa' });
-                let updateID = await LIENHE_MODEL.findOneAndUpdate({ IDLienHe: IDLienHe }, {TrangThai}, { new: true });
+                let updateID = await LIENHE_MODEL.findOneAndUpdate({ IDLienHe: IDLienHe }, {TrangThai,ThongTinCapNhap}, { new: true });
                 resolve({ error: false, data: updateID });
             } catch (error) {
                 return resolve({ error: true, message: error.message });

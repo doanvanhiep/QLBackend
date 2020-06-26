@@ -6,6 +6,8 @@ var LienHeSchema = new Shema ({
     Email: String,
     SoDienThoai: String,
     NoiDung: String,
+    ThoiGian:String,
+    ThongTinCapNhap:String,
     TrangThai:Number
 });
 var LienHeModel = mongoose.model('lienhe', LienHeSchema);
