@@ -72,6 +72,37 @@ route.delete('/xoa/:IDHocVien/:IDLopHoc', async (req, res) => {
         return res.json({"TrangThai":result})
     }
 });
+route.get('/getthongkedangkihocvien/:BatDau/:KetThuc',async(req,res)=>{
+    let BatDau= req.params.BatDau;
+    let KetThuc= req.params.KetThuc;
+    try {
+        let result = await HOCVIEN_MODEL.getThongKeDangKiHocVien(BatDau,KetThuc);
+        return res.json({"TrangThai":result})
+    } catch (error) {
+        return res.json({"TrangThai":result})
+    }
+});
+route.get('/getthongkehinhthucthanhtoanhocvien/:BatDau/:KetThuc',async(req,res)=>{
+    let BatDau= req.params.BatDau;
+    let KetThuc= req.params.KetThuc;
+    try {
+        let result = await HOCVIEN_MODEL.getThongKeHinhThucThanhToanHocVien(BatDau,KetThuc);
+        return res.json({"TrangThai":result})
+    } catch (error) {
+        return res.json({"TrangThai":result})
+    }
+});
+route.get('/getthongkedoanhthutheohinhthucthanhtoan/:BatDau/:KetThuc',async(req,res)=>{
+    let BatDau= req.params.BatDau;
+    let KetThuc= req.params.KetThuc;
+    try {
+        let result = await HOCVIEN_MODEL.getThongKeDoanhThuTheoHinhThucThanhToan(BatDau,KetThuc);
+        return res.json({"TrangThai":result})
+    } catch (error) {
+        return res.json({"TrangThai":result})
+    }
+});
+
 
 
 module.exports = route;

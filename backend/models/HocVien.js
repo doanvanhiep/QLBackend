@@ -194,4 +194,112 @@ module.exports = class HocVien extends HOCVIEN_MODEL {
             }
         });
     }
+    static getThongKeDangKiHocVien(BatDau,KetThuc)
+    {
+        return new Promise(async resolve=>{
+            let data = await HOCVIEN_MODEL.aggregate([
+                {
+                    $match:
+                    {
+                        $and:[
+                            { "ThoiGianDangKi": { "$lte": KetThuc } },             
+                            { "ThoiGianDangKi": { "$gte": BatDau } },          // BatDau<= ThoiGianDangKi <= KetThuc
+                        ]
+                    }
+                }
+            ]);
+            if (!data)
+                return resolve({ error: true, message: 'Không thể lấy danh sách học viên' });
+            let Tong=data.length;
+            let Online=0;
+            let TrungTam=0;
+            if(Tong>0)
+            {
+                for (let index = 0; index < Tong; index++) {
+                    if(data[index].NguoiThem=='online')
+                    {
+                        Online++;
+                    }
+                    else
+                    {
+                        TrungTam++;
+                    }
+                }
+            }
+            return resolve({ error: false, Tong: Tong,Online:Online,TrungTam:TrungTam })
+        });
+    }
+    static getThongKeHinhThucThanhToanHocVien(BatDau,KetThuc)
+    {
+        return new Promise(async resolve=>{
+            let data = await HOCVIEN_MODEL.aggregate([
+                {
+                    $match:
+                    {
+                        $and:[
+                            { "ThoiGianDangKi": { "$lte": KetThuc } },             
+                            { "ThoiGianDangKi": { "$gte": BatDau } },          // BatDau<= ThoiGianDangKi <= KetThuc
+                        ]
+                    }
+                }
+            ]);
+            if (!data)
+                return resolve({ error: true, message: 'Không thể lấy danh sách học viên' });
+            let Tong=data.length;
+            let Momo=0;
+            let TrungTam=0;
+            if(Tong>0)
+            {
+                for (let index = 0; index < Tong; index++) {
+                    if(data[index].HinhThucThanhToan=='momo')
+                    {
+                        Momo++;
+                    }
+                    else
+                    {
+                        TrungTam++;
+                    }
+                }
+            }
+            return resolve({ error: false, Tong: Tong,Momo:Momo,TrungTam:TrungTam })
+        });
+    }
+    static getThongKeDoanhThuTheoHinhThucThanhToan(BatDau,KetThuc)
+    {
+        return new Promise(async resolve=>{
+            let data = await HOCVIEN_MODEL.aggregate([
+                {
+                    $match:
+                    {
+                        $and:[
+                            { "ThoiGianDangKi": { "$lte": KetThuc } },             
+                            { "ThoiGianDangKi": { "$gte": BatDau } },          // BatDau<= ThoiGianDangKi <= KetThuc
+                        ]
+                    }
+                }
+            ]);
+            if (!data)
+                return resolve({ error: true, message: 'Không thể lấy danh sách học viên' });
+            let TongTien=0;
+            let Momo=0;
+            let TrungTam=0;
+            let tienTemp=0;
+            if(data.length>0)
+            {
+                for (let index = 0; index < data.length; index++) {
+                    tienTemp=parseInt(data[index].SoTien,10);
+                    TongTien+=tienTemp;
+                    if(data[index].HinhThucThanhToan=='momo')
+                    {
+                        Momo+=tienTemp;
+                    }
+                    else
+                    {
+                        TrungTam+=tienTemp;
+                    }
+                }
+            }
+            return resolve({ error: false, Tong: TongTien,Momo:Momo,TrungTam:TrungTam })
+        });
+    }
 }
