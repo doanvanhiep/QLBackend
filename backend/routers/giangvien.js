@@ -5,6 +5,10 @@ route.get('/danhsach', async (req, res) => {
     let result = await GIANGVIEN_MODEL.getList();
     return res.json({result});
 });
+route.get('/listall', async (req, res) => {
+    let result = await GIANGVIEN_MODEL.getListAll();
+    return res.json({result});
+});
 route.get('/getgiangvienbytentaikhoan/:TenTaiKhoan', async (req, res) => {
     let TenTaiKhoan=req.params.TenTaiKhoan;
     let result = await GIANGVIEN_MODEL.getGiangVienByTenTaiKhoan(TenTaiKhoan);
@@ -25,6 +29,15 @@ route.put('/sua/:IDGiangVien', async (req, res) => {
     let { HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu} = req.body;
     try {
         let result = await GIANGVIEN_MODEL.update({IDGiangVien,HoTen, DiaChi, SoDienThoai, Email,MoTa,HinhAnh,GhiChu});
+        return res.json({"TrangThai":result})
+    } catch (error) {
+        return res.json({"TrangThai":result})
+    }
+});
+route.put('/suatrangthai', async (req, res) => {
+    let { IDGiangVien,TrangThai} = req.body;
+    try {
+        let result = await GIANGVIEN_MODEL.UpdateState(IDGiangVien,TrangThai);
         return res.json({"TrangThai":result})
     } catch (error) {
         return res.json({"TrangThai":result})

@@ -4,7 +4,7 @@ module.exports = class PhongHoc extends PHONGHOC_MODEL {
     static getList() {
         return new Promise(async resolve => {
             try {
-                let data = await PHONGHOC_MODEL.find({TrangThai:1});
+                let data = await PHONGHOC_MODEL.find();
                 if (!data) 
                 return resolve({ error: true, message: 'Không thể lấy danh sách phòng học' });
                 return resolve({ error: false, data: data })
@@ -40,6 +40,19 @@ module.exports = class PhongHoc extends PHONGHOC_MODEL {
                 let checkID = await PHONGHOC_MODEL.findOne({IDPhongHoc:IDPhongHoc});
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy phòng học để sửa' });
                 let updateID = await PHONGHOC_MODEL.findOneAndUpdate({ IDPhongHoc: IDPhongHoc }, {TenPhong,SoChoNgoi,GhiChu}, { new: true });
+                resolve({ error: false, data: updateID });
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
+    static updateState(IDPhongHoc,TrangThai)
+    {
+        return new Promise(async resolve => {
+            try {
+                let checkID = await PHONGHOC_MODEL.findOne({IDPhongHoc:IDPhongHoc});
+                if (!checkID) return resolve({ error: true, message: 'Không tìm thấy phòng học để sửa' });
+                let updateID = await PHONGHOC_MODEL.findOneAndUpdate({ IDPhongHoc: IDPhongHoc }, {TrangThai}, { new: true });
                 resolve({ error: false, data: updateID });
             } catch (error) {
                 return resolve({ error: true, message: error.message });

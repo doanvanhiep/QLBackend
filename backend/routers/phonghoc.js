@@ -24,6 +24,15 @@ route.put('/sua/:IDPhongHoc', async (req, res) => {
         return res.json({"TrangThai":result})
     }
 });
+route.put('/suatrangthai', async (req, res) => {
+    let {IDPhongHoc,TrangThai} = req.body;
+    try {
+        let result = await PHONGHOC_MODEL.updateState(IDPhongHoc,TrangThai);
+        return res.json({"TrangThai":result})
+    } catch (error) {
+        return res.json({"TrangThai":result})
+    }
+});
 route.delete('/xoa/:IDPhongHoc', async (req, res) => {
     let  IDPhongHoc  = req.params.IDPhongHoc;
     try {

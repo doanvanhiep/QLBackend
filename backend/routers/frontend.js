@@ -7,10 +7,12 @@ const HOCVIEN_MODEL = require('../models/HocVien');
 const LIENHE_MODEL = require('../models/LienHe');
 const GIANGVIEN_MODEL = require('../models/GiangVien');
 const ServiceMoMo = require('../Service/Momo/momo');
-
-
-function getCurrentDate()
-{
+const ServiceMail = require('../Service/Mail/mail');
+//send Mail
+var multer = require('multer');
+const uploadfile = multer();
+var nodemailer = require('nodemailer');
+function getCurrentDate() {
     var currentDate = new Date();
     var date = currentDate.getDate();
     var month = currentDate.getMonth() + 1; //Be careful! January is 0 not 1
@@ -71,27 +73,53 @@ route.post('/lienhe', async (req, res) => {
 });
 route.post('/dangkilophoc', async (req, res) => {
     let { TenHocVien, Email, SoDienThoai, IDLopHoc, HinhThucThanhToan, SoTien } = req.body;
-    let ThoiGianDangKi = this.getCurrentDate();
+    let ThoiGianDangKi = getCurrentDate();
     let TrangThaiThanhToan = 0;
     let NguoiThem = "online";
     let kq = await HOCVIEN_MODEL.add({ IDLopHoc, TenHocVien, Email, SoDienThoai, ThoiGianDangKi, HinhThucThanhToan, SoTien, TrangThaiThanhToan, NguoiThem });
+    let attachments = [];
+    let maillist = [Email];
+    var Mail = new ServiceMail(nodemailer)
     if (kq.error == true) {
+        let content = "Thanh toán thất bại vui lòng liên hệ trung tâm hieptest12345@gmail.com "+TenHocVien;
+        Mail.SendMail("Đăng kí lớp học", content, attachments, maillist);
         return res.json({ error: true, url: "thanhtoanmomo", queryParams: "Fail" });
     }
     if (HinhThucThanhToan === "trungtam") {
+        let content = "Thanh toán thành công vui lòng liên hệ trung tâm hieptest12345@gmail.com "+TenHocVien;
+        Mail.SendMail("Đăng kí lớp học", content, attachments, maillist);
         return res.json({ error: false, url: "thanhtoanmomo", queryParams: "Success" });
     }
-    var dateString = date + "-" + month + "-" + year;
+    var IDHocVien = kq.data.IDHocVien
+    var dateString = ThoiGianDangKi.substring(10);
     var orderId = dateString + "-thanh-toan-hoc-phi-" + SoDienThoai;
-    var requestId = currentDate.getTime().toString();
-    var MoMo = new ServiceMoMo(res)
-    MoMo.SendMoMo(HoTen, Email, SoDienThoai, SoTien, orderId, requestId);
+    var requestId = dateString;
+    var MoMo = new ServiceMoMo(res);
+    SoTien = SoTien.toString();
+    MoMo.SendMoMo(TenHocVien, Email, SoDienThoai, SoTien, orderId, requestId, IDLopHoc, IDHocVien);
 });
 route.post('/thanhtoanmomo', async (req, res) => {
-    console.log(req);
-    return;
-    let { requestId, errorCode, message } = req.body;
-    console.log({ requestId, errorCode, message });
+    let { errorCode, extraData } = req.body;
+    dataReq = extraData.split(';');
+    let Email = dataReq[1].split('=')[1];
+    let HoTen = dataReq[0].split('=')[1];
+    let IDLopHoc = dataReq[3].split('=')[1];
+    let IDHocVien = dataReq[4].split('=')[1];
+    let attachments = [];
+    let maillist = [Email];
+    var Mail = new ServiceMail(nodemailer)
+
+    if (parseInt(errorCode, 10) != 0) {
+        //sendmail
+        let content = "Thanh toán thất bại vui lòng liên hệ trung tâm hieptest12345@gmail.com "+HoTen;
+        Mail.SendMail("Đăng kí lớp học", content, attachments, maillist);
+    }
+    else {
+        let TrangThaiThanhToan=1;
+        HOCVIEN_MODEL.updateStatusPay({ IDHocVien, IDLopHoc, TrangThaiThanhToan })
+        let content = "Thanh toán thành công vui lòng liên hệ trung tâm hieptest12345@gmail.com  "+HoTen;
+        Mail.SendMail("Đăng kí lớp học", content, attachments, maillist);
+    }
 });
 
 module.exports = route;

@@ -90,7 +90,7 @@ module.exports = class TaiKhoan extends TAIKHOAN_MODEL {
     static loginTaiKhoan({ TenTaiKhoan, MatKhau }) {
         return new Promise(async resolve => {
             try {
-                let tenTK = await TAIKHOAN_MODEL.find({ TenTaiKhoan: TenTaiKhoan });
+                let tenTK = await TAIKHOAN_MODEL.find({ TenTaiKhoan: TenTaiKhoan,TrangThai:1 });
                 if (tenTK != null && tenTK.length > 0) {
                     let mk = tenTK[0]['MatKhau'];
                     if (passwordHash.verify(MatKhau, mk)) {

@@ -8,6 +8,18 @@ var multer = require('multer');
 const uploadfile = multer();
 var nodemailer = require('nodemailer');
 module.exports = class GiangVien extends GIANGVIEN_MODEL {
+    static getListAll() {
+        return new Promise(async resolve => {
+            try {
+                let data = await GIANGVIEN_MODEL.find();
+                if (!data)
+                    return resolve({ error: true, message: 'Không thể lấy danh sách giảng viên' });
+                return resolve({ error: false, data: data })
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
     static getList() {
         return new Promise(async resolve => {
             try {
@@ -105,6 +117,7 @@ module.exports = class GiangVien extends GIANGVIEN_MODEL {
                 let checkID = await GIANGVIEN_MODEL.findOne({ IDGiangVien: IDGiangVien });
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy giảng viên' });
                 let updateID = await GIANGVIEN_MODEL.findOneAndUpdate({ IDGiangVien: IDGiangVien }, { TrangThai }, { new: true });
+                await TAIKHOAN_MODELBD.findOneAndUpdate({ TenTaiKhoan: checkID.TenTaiKhoan }, { TrangThai }, { new: true });
                 resolve({ error: false, data: updateID });
             } catch (error) {
                 return resolve({ error: true, message: error.message });
