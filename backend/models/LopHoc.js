@@ -222,6 +222,122 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
       }
     });
   }
+  //
+  static checkArrPHGV(BatDau, KetThuc, arrPHGV) {
+    return new Promise(async resolve => {
+      try {
+        let statusPH = false;
+        let dataPH = await LOPHOC_MODEL.aggregate([
+          {
+            $match:
+            {
+              $and: [
+                { TrangThai: 1 },
+                { NgayKhaiGiang: { "$lte": KetThuc } },             //ngày khai giảng <= ngày kết thúc của tuần
+                { NgayBeGiang: { "$gte": BatDau } },                 // ngày bế giảng >= ngày bắt đầu của tuần
+              ]
+            }
+          },
+          {
+            $lookup: {
+              from: 'thongtinlophocs',
+              localField: 'IDLopHoc',
+              foreignField: 'IDLopHoc',
+              as: 'ttlh'
+            }
+          },
+          { $unwind: "$ttlh" },
+          {
+            $match:
+            {
+              $and: [
+                { "ttlh.TrangThai": 1 },
+                { "ttlh.IDPhongHoc": parseInt(arrPHGV.phong, 10) },
+                { "ttlh.CaHoc": arrPHGV.ca },
+                { "ttlh.Thu": arrPHGV.thu },
+                { "ttlh.IDThongTinLopHoc":{ "$ne": arrPHGV.idTTLH  }}
+              ]
+            }
+          },
+          {
+            $project:
+            {
+              MaLopHoc: 1,
+              "ttlh": "$ttlh"
+            }
+          }
+        ]);
+
+        if (!dataPH)
+          return resolve({ error: true, message: 'Không thể kiểm tra ca học. Vui lòng xem lại' });
+        else {
+          if (dataPH.length > 0) {
+            statusPH = true;
+          }
+          else {
+            statusPH = false;
+          }
+        }
+
+        //check GiangVien
+        let statusGV = false;
+        let dataGV = await LOPHOC_MODEL.aggregate([
+          {
+            $match:
+            {
+              $and: [
+                { TrangThai: 1 },
+                { NgayKhaiGiang: { "$lte": KetThuc } },             //ngày khai giảng <= ngày kết thúc của tuần
+                { NgayBeGiang: { "$gte": BatDau } },                 // ngày bế giảng >= ngày bắt đầu của tuần
+              ]
+            }
+          },
+          {
+            $lookup: {
+              from: 'thongtinlophocs',
+              localField: 'IDLopHoc',
+              foreignField: 'IDLopHoc',
+              as: 'ttlh'
+            }
+          },
+          { $unwind: "$ttlh" },
+          {
+            $match:
+            {
+              $and: [
+                { "ttlh.TrangThai": 1 },
+                { "ttlh.IDGiangVien": parseInt(arrPHGV.giangvien, 10) },
+                { "ttlh.CaHoc": arrPHGV.ca },
+                { "ttlh.Thu": arrPHGV.thu },
+                { "ttlh.IDThongTinLopHoc":{ "$ne": arrPHGV.idTTLH  }}
+              ]
+            }
+          },
+          {
+            $project:
+            {
+              MaLopHoc: 1,
+              "ttlh": "$ttlh"
+            }
+          }
+        ]);
+
+        if (!dataGV)
+          return resolve({ error: true, message: 'Không thể kiểm tra giảng viên. Vui lòng xem lại' });
+        else {
+          if (dataGV.length > 0) {
+            statusGV = true;
+          }
+          else {
+            statusGV = false;
+          }
+        }
+        return resolve({ error: false, statusPH: statusPH, statusGV: statusGV });
+      } catch (error) {
+        return resolve({ error: true, message: error.message });
+      }
+    });
+  }
 
   static getListLopHoc() {
     return new Promise(async resolve => {

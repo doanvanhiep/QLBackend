@@ -6,12 +6,12 @@ route.get('/danhsachlophoc/', async (req, res) => {
     return res.json({ result });
 });
 route.get('/danhsachlophocbyidgiangvien/:IDGiangVien', async (req, res) => {
-    let IDGiangVien=req.params.IDGiangVien;
+    let IDGiangVien = req.params.IDGiangVien;
     let result = await LOPHOC_MODEL.getListLopHocByIDGiangVien(IDGiangVien);
     return res.json({ result });
 });
 route.get('/danhsachbyidgiangvien/:IDGiangVien', async (req, res) => {
-    let IDGiangVien=req.params.IDGiangVien;
+    let IDGiangVien = req.params.IDGiangVien;
     console.log(IDGiangVien);
     // let result = await LOPHOC_MODEL.getListLopHoc(IDLopHocPhan);
     // return res.json({ result });
@@ -22,12 +22,27 @@ route.get('/danhsach/:IDLopHocPhan', async (req, res) => {
     return res.json({ result });
 });
 route.post('/checkphonghocgiangvien', async (req, res) => {
-    let {BatDau, KetThuc, IDPhongHoc,IDGiangVien, CaHoc, Thu}=req.body;
-    let result = await LOPHOC_MODEL.checkPhongHocVaGiangVien(BatDau, KetThuc, IDPhongHoc,IDGiangVien, CaHoc, Thu);
+    let { BatDau, KetThuc, IDPhongHoc, IDGiangVien, CaHoc, Thu } = req.body;
+    let result = await LOPHOC_MODEL.checkPhongHocVaGiangVien(BatDau, KetThuc, IDPhongHoc, IDGiangVien, CaHoc, Thu);
     return res.json({ result });
 });
+route.post('/checkarrayphgv', async (req, res) => {
+    let { arrPHGV, BatDau, KetThuc } = req.body;
+    for (let i = 0; i < arrPHGV.length; i++) {
+        let result = await LOPHOC_MODEL.checkArrPHGV(BatDau, KetThuc, arrPHGV[i]);
+        if (result.error) {
+            return res.json({ error: true,result });
+        }
+        if (result.statusPH || result.statusGV) {
+            let lh = arrPHGV[i];
+            return res.json({ error: true,result, lh });
+        }
+        return res.json({ error: false, message: "Không có lỗi" });
+    }
+
+});
 route.post('/recommendphonghocgiangvien', async (req, res) => {
-    let {BatDau, KetThuc,  CaHoc, Thu}=req.body;
+    let { BatDau, KetThuc, CaHoc, Thu } = req.body;
     let result = await LOPHOC_MODEL.recommendPhongHocVaGiangVien(BatDau, KetThuc, CaHoc, Thu);
     return res.json({ result });
 });
@@ -68,7 +83,7 @@ route.put('/sua/:IDLopHoc', async (req, res) => {
                 var CaHoc = element.ca;
                 var IDPhongHoc = parseInt(element.phong, 10);
                 var IDGiangVien = parseInt(element.giangvien, 10);
-                var IDThongTinLopHoc=parseInt(element.idTTLH, 10);
+                var IDThongTinLopHoc = parseInt(element.idTTLH, 10);
                 await THONGTINLOPHOC_MODEL.update({ IDThongTinLopHoc, CaHoc, Thu, IDPhongHoc, IDGiangVien });
             });
             return res.json({ "TrangThai": result })
@@ -79,7 +94,7 @@ route.put('/sua/:IDLopHoc', async (req, res) => {
     }
 });
 route.put('/suatrangthai', async (req, res) => {
-    let{IDLopHoc,TrangThai} = req.body;
+    let { IDLopHoc, TrangThai } = req.body;
     try {
         var result = await LOPHOC_MODEL.updatestatus(IDLopHoc, TrangThai);
         return res.json({ "TrangThai": result });
@@ -88,7 +103,7 @@ route.put('/suatrangthai', async (req, res) => {
     }
 });
 route.delete('/xoa/:IDLopHoc', async (req, res) => {
-    var  IDLopHoc=req.params.IDLopHoc;
+    var IDLopHoc = req.params.IDLopHoc;
     try {
         let result = await LOPHOC_MODEL.delete(IDLopHoc);
         return res.json({ "TrangThai": result })
