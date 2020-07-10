@@ -81,8 +81,8 @@ module.exports = function (responseS) {
         var accessKey = "sfzlXRsBlXvP2AY1"//"F8BBA842ECF85"
         var serectkey = "SOg2mZucehzzhhpvgQ25P9ahoS1wjWpI";//"K951B6PE1waDMi640xX08PD3vg6EkVlz"
         var orderInfo = "Thanh toán học phí Trung Tâm Anh Ngữ";
-        var returnUrl = "https://6aaf48b9e063.ngrok.io/thanhtoanmomo";          //front end
-        var notifyurl = "https://077952915e36.ngrok.io/api/frontend/thanhtoanmomo"; /// backend
+        var returnUrl = "https://f11829db7f2f.ngrok.io/thanhtoanmomo";          //front end
+        var notifyurl = "https://9d614a283391.ngrok.io/api/frontend/thanhtoanmomo"; /// backend
         var requestType = "captureMoMoWallet"
         var extraData = "HoTen=" + HoTen + ";Email=" + Email + ";SDT=" + SoDienThoai + ";IDLopHoc=" + IDLopHoc + ";IDHocVien=" + IDHocVien;//"merchantName=;merchantId=" //pass empty value if your merchant does not have stores else merchantName=[storeName]; merchantId=[storeId] to identify a transaction map with a physical store
         //before sign HMAC SHA256 with format
