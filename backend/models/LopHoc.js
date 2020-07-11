@@ -691,6 +691,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
           });
           dt.ThongTinLopHoc = res;
         });
+        
         if (!data)
           return resolve({ error: true, message: 'Không thể lấy danh sách lớp học' });
         return resolve({ error: false, data: data })

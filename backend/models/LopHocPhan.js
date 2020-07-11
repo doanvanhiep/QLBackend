@@ -134,7 +134,7 @@ module.exports = class LopHocPhan extends LOPHOCPHAN_MODEL {
             }
         });
     }
-    static updateStatus(IDLopHocPhan, TrangThai) {
+    static updateStatus({IDLopHocPhan, TrangThai}) {
         return new Promise(async resolve => {
             try {
                 let checkID = await LOPHOCPHAN_MODEL.findOne({ IDLopHocPhan: IDLopHocPhan });
