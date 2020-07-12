@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 var PORT = process.env.PORT || 3000;
 // var MONGODB_URI=process.env.MONGODB_URI || "mongodb://localhost/QLTTAN";
 var MONGODB_URI="mongodb://localhost/QLTTAN";
+const BAONGHI_ROUTER = require('./routers/baonghi');
 const GIANGVIEN_ROUTER = require('./routers/giangvien');
 const HOCVIEN_ROUTER = require('./routers/hocvien');
 const KHOAHOC_ROUTER = require('./routers/khoahoc');
@@ -69,6 +70,7 @@ app.use('/api/sendmail', SENDMAIL_ROUTER);
 // app.use(function (req, res, next) {
 //     if(req.headers && req.headers.authorization && String(req.headers.authorization.split(' ')[0].toLowerCase()==='bearer'))
 //     {
+//         let token=req.headers.authorization.split(' ')[1];
 //         jwt.verify(token,process.env.SECRETKEY||'hiepdv',function(err,decode){
 //             if(err)
 //             {
@@ -89,6 +91,7 @@ app.use('/api/sendmail', SENDMAIL_ROUTER);
 //         });
 //     }
 // });
+app.use('/api/baonghi', BAONGHI_ROUTER);
 app.use('/api/giangvien', GIANGVIEN_ROUTER);
 app.use('/api/hocvien', HOCVIEN_ROUTER);
 app.use('/api/khoahoc', KHOAHOC_ROUTER);
