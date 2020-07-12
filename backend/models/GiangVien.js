@@ -3,6 +3,7 @@ const TAIKHOAN_MODEL = require('../models/TaiKhoan');
 const ServiceMail = require('../Service/Mail/mail');
 const THONGTINLOPHOC_MODEL = require('../database/ThongTinLopHoc-Coll');
 const TAIKHOAN_MODELBD = require('../database/TaiKhoan-Coll');
+const BAONGHI_MODELBD = require('../database/BaoNghi-Coll');
 //send Mail
 var multer = require('multer');
 const uploadfile = multer();
@@ -173,6 +174,7 @@ module.exports = class GiangVien extends GIANGVIEN_MODEL {
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy giảng viên để xóa' });
                 let deleteGiangVien = await GIANGVIEN_MODEL.findOneAndDelete({ IDGiangVien: IDGiangVien });
                 await THONGTINLOPHOC_MODEL.deleteMany({ IDGiangVien: IDGiangVien });
+                await BAONGHI_MODELBD.deleteMany({ IDGiangVien: IDGiangVien });
                 await TAIKHOAN_MODELBD.deleteOne({ TenTaiKhoan: checkID.TenTaiKhoan })
                 resolve({ error: false, data: deleteGiangVien })
             } catch (error) {

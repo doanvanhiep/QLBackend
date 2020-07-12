@@ -90,7 +90,7 @@ module.exports = class BaoNghi extends BAONGHI_MODEL {
             try {
                 let lastBaoNghi = await BAONGHI_MODEL.findOne().sort({ IDBaoNghi: -1 });
                 let IDBaoNghi = 1;
-                let TrangThai = 1;
+                let TrangThai = 0;
                 if (lastBaoNghi != null) {
                     IDBaoNghi = lastBaoNghi.IDBaoNghi + 1;
                 }
