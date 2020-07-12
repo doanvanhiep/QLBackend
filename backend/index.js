@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 const MONGODB_URI =
   "mongodb+srv://tranvietbao11:vietbao123@qlttan.vnbwv.mongodb.net/QLTTAN?retryWrites=true&w=majority";
 var PORT = process.env.PORT || 3000;
-// var MONGODB_URI=process.env.MONGODB_URI || "mongodb://localhost/QLTTAN";
+// var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/QLTTAN";
 
 // var MONGODB_URI="mongodb://localhost/QLTTAN";
 const GIANGVIEN_ROUTER = require("./routers/giangvien");
