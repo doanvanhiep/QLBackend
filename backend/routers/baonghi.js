@@ -1,5 +1,12 @@
 const route = require('express').Router();
 const BAONGHI_MODEL = require('../models/BaoNghi');
+route.get('/getbaonghitheothoikhoabieu/:IDGiangVien/:BatDau/:KetThuc', async (req, res) => {
+    let IDGiangVien=req.params.IDGiangVien;
+    let BatDau=req.params.BatDau;
+    let KetThuc=req.params.KetThuc;
+    let result = await BAONGHI_MODEL.getbaonghitheothoikhoabieu(IDGiangVien,BatDau,KetThuc);
+    return res.json({result});
+});
 route.get('/danhsach', async (req, res) => {
     let result = await BAONGHI_MODEL.getList();
     return res.json({result});

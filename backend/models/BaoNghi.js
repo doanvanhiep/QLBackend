@@ -1,6 +1,49 @@
 const BAONGHI_MODEL = require('../database/BaoNghi-Coll');
 
 module.exports = class BaoNghi extends BAONGHI_MODEL {
+    static getbaonghitheothoikhoabieu(IDGiangVien, BatDau, KetThuc) {
+        return new Promise(async resolve => {
+            try {
+                let data = await BAONGHI_MODEL.aggregate([
+                    {
+                        $match:
+                        {
+                            $and: [
+                                { IDGiangVien: parseInt(IDGiangVien,10) },
+                                { NgayNghi: { "$lte": KetThuc } },             //ngày nghỉ <= ngày kết thúc của tuần
+                                { NgayNghi: { "$gte": BatDau } },                 // ngày nghỉ >= ngày bắt đầu của tuần
+                            ]
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'thongtinlophocs',
+                            localField: 'IDThongTinLopHoc',
+                            foreignField: 'IDThongTinLopHoc',
+                            as: 'ThongTinLopHoc'
+                        }
+                    },
+                    { $unwind: "$ThongTinLopHoc" },
+                    {
+                        $match:
+                            { "ThongTinLopHoc.TrangThai": 1 }
+                    },
+                    {
+                        $project:
+                        {
+                            CaHoc: "$ThongTinLopHoc.CaHoc",
+                            Thu: "$ThongTinLopHoc.Thu"
+                        }
+                    }
+                ]);
+                if (!data)
+                    return resolve({ error: true, message: 'Không thể lấy danh sách báo nghỉ' });
+                return resolve({ error: false, data: data })
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
     static getList() {
         return new Promise(async resolve => {
             try {
@@ -16,7 +59,7 @@ module.exports = class BaoNghi extends BAONGHI_MODEL {
                     { $unwind: "$GiangVien" },
                     {
                         $match:
-                        { "GiangVien.TrangThai": 1 }
+                            { "GiangVien.TrangThai": 1 }
                     },
                     {
                         $lookup: {
@@ -29,7 +72,7 @@ module.exports = class BaoNghi extends BAONGHI_MODEL {
                     { $unwind: "$ThongTinLopHoc" },
                     {
                         $match:
-                        { "ThongTinLopHoc.TrangThai": 1 }
+                            { "ThongTinLopHoc.TrangThai": 1 }
                     },
                     {
                         $lookup: {
@@ -42,7 +85,7 @@ module.exports = class BaoNghi extends BAONGHI_MODEL {
                     { $unwind: "$LopHoc" },
                     {
                         $match:
-                        { "LopHoc.TrangThai": 1 }
+                            { "LopHoc.TrangThai": 1 }
                     },
                     {
                         $lookup: {
@@ -55,7 +98,7 @@ module.exports = class BaoNghi extends BAONGHI_MODEL {
                     { $unwind: "$LopHocPhan" },
                     {
                         $match:
-                        { "LopHocPhan.TrangThai": 1 }
+                            { "LopHocPhan.TrangThai": 1 }
                     },
                     {
                         $project:
@@ -69,11 +112,11 @@ module.exports = class BaoNghi extends BAONGHI_MODEL {
                             GhiChu: 1,
                             TrangThai: 1,
                             BuoiNghi: 1,
-                            MaLopHoc:"$LopHoc.MaLopHoc",
-                            TenLopHocPhan:"$LopHocPhan.TenLopHocPhan",
+                            MaLopHoc: "$LopHoc.MaLopHoc",
+                            TenLopHocPhan: "$LopHocPhan.TenLopHocPhan",
                             GiangVien: "$GiangVien.HoTen",
                             Thu: "$ThongTinLopHoc.Thu",
-                            CaHoc:"$ThongTinLopHoc.CaHoc"
+                            CaHoc: "$ThongTinLopHoc.CaHoc"
                         }
                     }
                 ]);

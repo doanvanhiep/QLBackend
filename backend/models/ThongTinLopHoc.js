@@ -1,9 +1,14 @@
 const THONGTINLOPHOC_MODEL = require('../database/ThongTinLopHoc-Coll');
-
+const BAONGHI_MODEL = require('../models/BaoNghi');
 module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
     static getSchedule(IDGiangVien, BatDau, KetThuc) {
         return new Promise(async resolve => {
             try {
+                let resultBaoNghi = await BAONGHI_MODEL.getbaonghitheothoikhoabieu(IDGiangVien, BatDau, KetThuc);
+                if (resultBaoNghi.error) {
+                    return resolve({ error: true, message: 'Không thể lấy thời khóa biểu' });
+                }
+                resultBaoNghi = resultBaoNghi.data;
                 let dataBegin = await THONGTINLOPHOC_MODEL.aggregate([
                     {
                         $match:
@@ -99,21 +104,35 @@ module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
                             objAdd[j] = "";
                         }
                         else {
-                            if ((j + 1) >= daydefault) {
-                                disDay = j + 1 - daydefault;
-                                temp.setDate(temp.getDate() + disDay);
+                            let indexTemp = 0
+                            for (indexTemp = 0; indexTemp < resultBaoNghi.length; indexTemp++) {
+                                if (obj.CaHoc === resultBaoNghi[indexTemp].CaHoc && obj.Thu === resultBaoNghi[indexTemp].Thu)
+                                {
+                                    break;
+                                }
+                            }
+                            if (indexTemp<resultBaoNghi.length) {
+                                objAdd[j] = "";
                             }
                             else {
-                                disDay = 7 - (daydefault - j - 1);
-                                temp.setDate(temp.getDate() + disDay);
-                            }
-                            if (temp >= new Date(obj.lh.NgayKhaiGiang) && temp <= new Date(obj.lh.NgayBeGiang)) {
-                                objAdd[j] = "LỚP: " + obj.TenLopHocPhan + "\nPHÒNG: " + obj.TenPhong;
+                                if ((j + 1) >= daydefault) {
+                                    disDay = j + 1 - daydefault;
+                                    temp.setDate(temp.getDate() + disDay);
+                                }
+                                else {
+                                    disDay = 7 - (daydefault - j - 1);
+                                    temp.setDate(temp.getDate() + disDay);
+                                }
+                                if (temp >= new Date(obj.lh.NgayKhaiGiang) && temp <= new Date(obj.lh.NgayBeGiang)) {
+                                    objAdd[j] = "LỚP: " + obj.TenLopHocPhan + "\nPHÒNG: " + obj.TenPhong;
+                                }
                             }
                         }
                     }
                     data.push(objAdd);
                 }
+                console.log("data");
+                console.log(data);
                 if (!data)
                     return resolve({ error: true, message: 'Không thể lấy thời khóa biểu' });
                 return resolve({ error: false, data: data })
