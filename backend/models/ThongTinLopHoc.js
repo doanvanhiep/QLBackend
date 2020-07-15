@@ -1,14 +1,23 @@
 const THONGTINLOPHOC_MODEL = require('../database/ThongTinLopHoc-Coll');
 const BAONGHI_MODEL = require('../models/BaoNghi');
+const BAOBU_MODEL = require('../models/BaoBu');
 module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
     static getSchedule(IDGiangVien, BatDau, KetThuc) {
         return new Promise(async resolve => {
             try {
+                //Báo nghỉ
                 let resultBaoNghi = await BAONGHI_MODEL.getbaonghitheothoikhoabieu(IDGiangVien, BatDau, KetThuc);
                 if (resultBaoNghi.error) {
                     return resolve({ error: true, message: 'Không thể lấy thời khóa biểu' });
                 }
                 resultBaoNghi = resultBaoNghi.data;
+                //Báo bù
+                let resultBaoBu = await BAOBU_MODEL.getbaobutheothoikhoabieu(IDGiangVien, BatDau, KetThuc);
+                if (resultBaoBu.error) {
+                    return resolve({ error: true, message: 'Không thể lấy thời khóa biểu' });
+                }
+                resultBaoBu = resultBaoBu.data;
+
                 let dataBegin = await THONGTINLOPHOC_MODEL.aggregate([
                     {
                         $match:
@@ -101,7 +110,15 @@ module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
                             return obj.CaHoc === "Ca " + (i + 1) && obj.Thu === "Thứ " + (j + 2);
                         })[0];
                         if (obj === undefined) {
-                            objAdd[j] = "";
+                            if(resultBaoBu.length>0)
+                            {
+                                if(resultBaoBu[0].CaHoc == "Ca " + (i + 1)&& resultBaoBu[0].Thu === "Thứ " + (j + 2))
+                                objAdd[j] = "LỚP: " + resultBaoBu[0].TenLopHocPhan + "\nPHÒNG: " + resultBaoBu[0].TenPhong;
+                            }
+                            else
+                            {
+                                objAdd[j] = "";
+                            }
                         }
                         else {
                             let indexTemp = 0
@@ -131,8 +148,6 @@ module.exports = class ThongTinLopHoc extends THONGTINLOPHOC_MODEL {
                     }
                     data.push(objAdd);
                 }
-                console.log("data");
-                console.log(data);
                 if (!data)
                     return resolve({ error: true, message: 'Không thể lấy thời khóa biểu' });
                 return resolve({ error: false, data: data })

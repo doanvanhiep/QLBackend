@@ -5,7 +5,6 @@ module.exports = class CaHoc extends CAHOC_MODEL {
         return new Promise(async resolve => {
             try {
                 let data = await CAHOC_MODEL.find();
-                console.log(data);
                 if (!data) 
                 return resolve({ error: true, message: 'Không thể lấy danh sách ca học' });
                 return resolve({ error: false, data: data })

@@ -7,6 +7,13 @@ route.get('/getbaonghitheothoikhoabieu/:IDGiangVien/:BatDau/:KetThuc', async (re
     let result = await BAONGHI_MODEL.getbaonghitheothoikhoabieu(IDGiangVien,BatDau,KetThuc);
     return res.json({result});
 });
+route.get('/getphbn/:CaHoc/:Thu/:Ngay', async (req, res) => {
+    let CaHoc=req.params.CaHoc;
+    let Thu=req.params.Thu;
+    let Ngay=req.params.Ngay;
+    let result = await BAONGHI_MODEL.getPHBN(CaHoc, Thu, Ngay);
+    return res.json({result});
+});
 route.get('/danhsach', async (req, res) => {
     let result = await BAONGHI_MODEL.getList();
     return res.json({result});

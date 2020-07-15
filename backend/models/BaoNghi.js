@@ -9,7 +9,7 @@ module.exports = class BaoNghi extends BAONGHI_MODEL {
                         $match:
                         {
                             $and: [
-                                { IDGiangVien: parseInt(IDGiangVien,10) },
+                                { IDGiangVien: parseInt(IDGiangVien, 10) },
                                 { NgayNghi: { "$lte": KetThuc } },             //ngày nghỉ <= ngày kết thúc của tuần
                                 { NgayNghi: { "$gte": BatDau } },                 // ngày nghỉ >= ngày bắt đầu của tuần
                             ]
@@ -33,6 +33,49 @@ module.exports = class BaoNghi extends BAONGHI_MODEL {
                         {
                             CaHoc: "$ThongTinLopHoc.CaHoc",
                             Thu: "$ThongTinLopHoc.Thu"
+                        }
+                    }
+                ]);
+                if (!data)
+                    return resolve({ error: true, message: 'Không thể lấy danh sách báo nghỉ' });
+                return resolve({ error: false, data: data })
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
+    static getPHBN(CaHoc, Thu, Ngay) {
+        return new Promise(async resolve => {
+            try {
+                let data = await BAONGHI_MODEL.aggregate([
+                    {
+                        $match:
+                        {
+                            NgayNghi: Ngay
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'thongtinlophocs',
+                            localField: 'IDThongTinLopHoc',
+                            foreignField: 'IDThongTinLopHoc',
+                            as: 'ThongTinLopHoc'
+                        }
+                    },
+                    { $unwind: "$ThongTinLopHoc" },
+                    {
+                        $match: {
+                            $and: [
+                                { "ThongTinLopHoc.TrangThai": 1 },
+                                { "ThongTinLopHoc.CaHoc": CaHoc },
+                                { "ThongTinLopHoc.Thu": Thu }
+                            ]
+                        }
+                    },
+                    {
+                        $project:
+                        {
+                            IDPhongHoc: "$ThongTinLopHoc.IDPhongHoc"
                         }
                     }
                 ]);

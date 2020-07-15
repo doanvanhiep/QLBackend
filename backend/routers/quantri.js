@@ -49,7 +49,6 @@ route.put('/suathongtincanhan', async (req, res) => {
 });
 route.delete('/xoa/:IDQuanTri', async (req, res) => {
     let IDQuanTri = req.params.IDQuanTri;
-    console.log(IDQuanTri);
     try {
         let result = await QUANTRI_MODEL.delete(IDQuanTri);
         return res.json({"TrangThai":result})

@@ -5,9 +5,24 @@ route.get('/danhsachlophoc/', async (req, res) => {
     let result = await LOPHOC_MODEL.getListLopHoc();
     return res.json({ result });
 });
+route.get('/checkgiangvienbaobu/:IDGiangVien/:CaHoc/:Thu/:NgayBu', async (req, res) => {
+    let IDGiangVien = req.params.IDGiangVien;
+    let CaHoc = req.params.CaHoc;
+    let Thu = req.params.Thu;
+    let NgayBu = req.params.NgayBu;
+    let result = await LOPHOC_MODEL.checkGiangVienBaoBu(IDGiangVien,CaHoc,Thu,NgayBu);
+    return res.json({ result });
+});
 route.get('/danhsachlophocbyidgiangvien/:IDGiangVien', async (req, res) => {
     let IDGiangVien = req.params.IDGiangVien;
     let result = await LOPHOC_MODEL.getListLopHocByIDGiangVien(IDGiangVien);
+    return res.json({ result });
+});
+route.get('/getphonghocbaobu/:CaHoc/:Thu/:NgayBu', async (req, res) => {
+    let CaHoc = req.params.CaHoc;
+    let Thu = req.params.Thu;
+    let NgayBu = req.params.NgayBu;
+    let result = await LOPHOC_MODEL.getPhongHocBaoBu(CaHoc,Thu,NgayBu);
     return res.json({ result });
 });
 route.get('/danhsachbyidgiangvien/:IDGiangVien', async (req, res) => {

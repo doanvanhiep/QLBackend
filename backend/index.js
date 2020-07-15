@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 var PORT = process.env.PORT || 3000;
 // var MONGODB_URI=process.env.MONGODB_URI || "mongodb://localhost/QLTTAN";
 var MONGODB_URI="mongodb://localhost/QLTTAN";
+const BAOBU_ROUTER = require('./routers/baobu');
 const BAONGHI_ROUTER = require('./routers/baonghi');
 const GIANGVIEN_ROUTER = require('./routers/giangvien');
 const HOCVIEN_ROUTER = require('./routers/hocvien');
@@ -91,6 +92,7 @@ app.use('/api/sendmail', SENDMAIL_ROUTER);
 //         });
 //     }
 // });
+app.use('/api/baobu', BAOBU_ROUTER);
 app.use('/api/baonghi', BAONGHI_ROUTER);
 app.use('/api/giangvien', GIANGVIEN_ROUTER);
 app.use('/api/hocvien', HOCVIEN_ROUTER);

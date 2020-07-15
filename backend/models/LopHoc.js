@@ -3,6 +3,8 @@ const HOCVIEN_MODEL = require('../database/HocVien-Coll');
 const THONGTINLOPHOC_MODEL = require('../database/ThongTinLopHoc-Coll');
 const PHONGHOC_MODEL = require('../models/PhongHoc');
 const GIANGVIEN_MODEL = require('../models/GiangVien');
+const BAONGHI_MODEL = require('../models/BaoNghi');
+const BAOBU_MODEL = require('../models/BaoBu');
 module.exports = class LopHoc extends LOPHOC_MODEL {
   static recommendPhongHocVaGiangVien(BatDau, KetThuc, CaHoc, Thu) {
     return new Promise(async resolve => {
@@ -106,12 +108,23 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
       resultGV = resultGV.filter(gv => {
         return !idGiangVien.includes(gv.IDGiangVien);
       })
-      return resolve({ error: false, ListGiangVien: resultGV, ListPhongHoc:resultPH});
+      return resolve({ error: false, ListGiangVien: resultGV, ListPhongHoc: resultPH });
     });
   }
   static checkPhongHocVaGiangVien(BatDau, KetThuc, IDPhongHoc, IDGiangVien, CaHoc, Thu) {
     return new Promise(async resolve => {
       try {
+        //Báo bù
+        let resultBaoBu = await BAOBU_MODEL.getbaobuchecklophoc(IDGiangVien,IDPhongHoc,CaHoc,Thu, BatDau, KetThuc);
+        if (resultBaoBu.error) {
+          return resolve({ error: true, message: 'Hệ thống lỗi không thể check phòng học và giảng viên' });
+        }
+        let resultphbaobu = resultBaoBu.dataPH.length>0;
+        let resultgvbaobu = resultBaoBu.dataGV.length>0;
+        if(resultphbaobu || resultgvbaobu)
+        {
+          return resolve({ error: false, statusPH: resultphbaobu, statusGV: resultgvbaobu });
+        }
         let statusPH = false;
         let dataPH = await LOPHOC_MODEL.aggregate([
           {
@@ -160,6 +173,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
             statusPH = true;
           }
           else {
+            //Check báo bù
             statusPH = false;
           }
         }
@@ -255,7 +269,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
                 { "ttlh.IDPhongHoc": parseInt(arrPHGV.phong, 10) },
                 { "ttlh.CaHoc": arrPHGV.ca },
                 { "ttlh.Thu": arrPHGV.thu },
-                { "ttlh.IDThongTinLopHoc":{ "$ne": arrPHGV.idTTLH  }}
+                { "ttlh.IDThongTinLopHoc": { "$ne": arrPHGV.idTTLH } }
               ]
             }
           },
@@ -309,7 +323,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
                 { "ttlh.IDGiangVien": parseInt(arrPHGV.giangvien, 10) },
                 { "ttlh.CaHoc": arrPHGV.ca },
                 { "ttlh.Thu": arrPHGV.thu },
-                { "ttlh.IDThongTinLopHoc":{ "$ne": arrPHGV.idTTLH  }}
+                { "ttlh.IDThongTinLopHoc": { "$ne": arrPHGV.idTTLH } }
               ]
             }
           },
@@ -419,7 +433,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
               GhiChu: 1,
               TrangThai: 1,
               ThongTinLopHoc: 1,
-              TongTien:1,
+              TongTien: 1,
               "TTLH.IDThongTinLopHoc": "$TTLH.IDThongTinLopHoc",
               "TTLH.CaHoc": "$TTLH.CaHoc",
               "TTLH.Thu": "$TTLH.Thu",
@@ -552,7 +566,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
               GhiChu: 1,
               TrangThai: 1,
               ThongTinLopHoc: 1,
-              TongTien:1,
+              TongTien: 1,
               "TTLH.IDThongTinLopHoc": "$TTLH.IDThongTinLopHoc",
               "TTLH.CaHoc": "$TTLH.CaHoc",
               "TTLH.Thu": "$TTLH.Thu",
@@ -599,6 +613,148 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
       }
     });
   }
+  static getPhongHocBaoBu(CaHoc, Thu, NgayBu) {
+    return new Promise(async resolve => {
+      try {
+        //tất cả phòng học
+        let resultPH = await PHONGHOC_MODEL.getList();
+        if (resultPH.error) {
+          return resolve({ error: true, message: "Hệ thống lỗi không thể gợi ý phòng học" });
+        }
+        resultPH = resultPH.data;
+        //Lấy PH báo bù
+        let resultPHBN = await BAONGHI_MODEL.getPHBN(CaHoc, Thu, NgayBu);
+        if (resultPHBN.error) {
+          return resolve({ error: true, message: "Hệ thống lỗi không thể gợi ý phòng học" });
+        }
+        resultPHBN = resultPHBN.data;
+        let idPhongHocBu = [];
+        for (let index = 0; index < resultPHBN.length; index++) {
+          idPhongHocBu.push(resultPHBN[index].IDPhongHoc);
+        }
+        // Tìm Phòng có khóa học
+        let dataPH = await LOPHOC_MODEL.aggregate([
+          {
+            $match:
+            {
+              $and: [
+                { TrangThai: 1 },
+                { NgayKhaiGiang: { "$lte": NgayBu } },             //ngày khai giảng <= ngày kết thúc của tuần
+                { NgayBeGiang: { "$gte": NgayBu } },                 // ngày bế giảng >= ngày bắt đầu của tuần
+              ]
+            }
+          },
+          {
+            $lookup: {
+              from: 'thongtinlophocs',
+              localField: 'IDLopHoc',
+              foreignField: 'IDLopHoc',
+              as: 'ttlh'
+            }
+          },
+          { $unwind: "$ttlh" },
+          {
+            $match:
+            {
+              $and: [
+                { "ttlh.TrangThai": 1 },
+                { "ttlh.CaHoc": CaHoc },
+                { "ttlh.Thu": Thu }
+              ]
+            }
+          },
+          {
+            $project:
+            {
+              "IDPhongHoc": "$ttlh.IDPhongHoc"
+            }
+          }
+        ]);
+
+        let idPhongHoc = [];
+        for (let index = 0; index < dataPH.length; index++) {
+          if (!idPhongHocBu.includes(dataPH[index].IDPhongHoc)) {
+            idPhongHoc.push(dataPH[index].IDPhongHoc);
+          }
+        }
+        resultPH = resultPH.filter(ph => {
+          return !idPhongHoc.includes(ph.IDPhongHoc);
+        })
+
+        if (!resultPH)
+          return resolve({ error: true, message: 'Không thể lấy danh sách lớp học' });
+        return resolve({ error: false, data: resultPH })
+      } catch (error) {
+        return resolve({ error: true, message: error.message });
+      }
+    });
+  }
+  static checkGiangVienBaoBu(IDGiangVien, CaHoc, Thu, NgayBu) {
+    return new Promise(async resolve => {
+      try {
+        let data = await LOPHOC_MODEL.aggregate([
+          {
+            $match:
+            {
+              $and: [
+                { TrangThai: 1 },
+                { NgayKhaiGiang: { "$lte": NgayBu } },             //ngày khai giảng <= ngày kết thúc của tuần
+                { NgayBeGiang: { "$gte": NgayBu } },                 // ngày bế giảng >= ngày bắt đầu của tuần
+              ]
+            }
+          },
+          {
+            $lookup: {
+              from: 'thongtinlophocs',
+              localField: 'IDLopHoc',
+              foreignField: 'IDLopHoc',
+              as: 'ttlh'
+            }
+          },
+          { $unwind: "$ttlh" },
+          {
+            $match:
+            {
+              $and: [
+                { "ttlh.TrangThai": 1 },
+                { "ttlh.CaHoc": CaHoc },
+                { "ttlh.Thu": Thu },
+                { "ttlh.IDGiangVien": parseInt(IDGiangVien, 10) }
+              ]
+            }
+          },
+          {
+            $lookup: {
+              from: 'lophocphans',
+              localField: 'IDLopHocPhan',
+              foreignField: 'IDLopHocPhan',
+              as: 'lhp'
+            }
+          },
+          { $unwind: "$lhp" },
+          {
+            $match:
+            {
+              "lhp.TrangThai": 1
+            }
+          }, {
+            $project:
+            {
+              TenLopHocPhan: "$lhp.TenLopHocPhan",
+              MaLopHoc: 1
+            }
+          }
+        ]);
+
+        if (!data)
+          return resolve({ error: true, message: 'Không thể lấy danh sách lớp học' });
+        return resolve({ error: false, data: data })
+      } catch (error) {
+        return resolve({ error: true, message: error.message });
+      }
+    });
+  }
+
   static getListLopHocByIDLopHocPhan(IDLopHocPhan) {
     return new Promise(async resolve => {
       try {
@@ -691,7 +847,7 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
           });
           dt.ThongTinLopHoc = res;
         });
-        
+
         if (!data)
           return resolve({ error: true, message: 'Không thể lấy danh sách lớp học' });
         return resolve({ error: false, data: data })
