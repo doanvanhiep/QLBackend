@@ -52,9 +52,8 @@ route.post('/checkarrayphgv', async (req, res) => {
             let lh = arrPHGV[i];
             return res.json({ error: true,result, lh });
         }
-        return res.json({ error: false, message: "Không có lỗi" });
     }
-
+    return res.json({ error: false, message: "Không có lỗi" });
 });
 route.post('/recommendphonghocgiangvien', async (req, res) => {
     let { BatDau, KetThuc, CaHoc, Thu } = req.body;

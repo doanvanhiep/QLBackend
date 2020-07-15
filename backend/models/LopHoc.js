@@ -8,6 +8,20 @@ const BAOBU_MODEL = require('../models/BaoBu');
 module.exports = class LopHoc extends LOPHOC_MODEL {
   static recommendPhongHocVaGiangVien(BatDau, KetThuc, CaHoc, Thu) {
     return new Promise(async resolve => {
+      //Báo bù
+      let resultBaoBu = await BAOBU_MODEL.getbaoburecommend(CaHoc, Thu, BatDau, KetThuc);
+      if (resultBaoBu.error) {
+        return resolve({ error: true, message: 'Hệ thống lỗi không thể check phòng học và giảng viên' });
+      }
+
+      let resultbaobu = resultBaoBu.data;
+        let idPhongHocRe = [];
+        let idGiangVienRe = [];
+        for (let index = 0; index < resultbaobu.length; index++) {
+          idPhongHocRe.push(resultbaobu[index].IDPhongHoc);
+          idGiangVienRe.push(resultbaobu[index].IDGiangVien);
+        }
+      //
       let resultPH = await PHONGHOC_MODEL.getList();
       if (resultPH.error) {
         return resolve({ error: true, message: "Hệ thống lỗi không thể gợi ý phòng học" });
@@ -51,12 +65,12 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
           }
         }
       ]);
-      let idPhongHoc = [];
       for (let index = 0; index < dataPH.length; index++) {
-        idPhongHoc.push(dataPH[index].IDPhongHoc);
+        if(!idPhongHocRe.includes(dataPH[index].IDPhongHoc))
+        idPhongHocRe.push(dataPH[index].IDPhongHoc);
       }
       resultPH = resultPH.filter(ph => {
-        return !idPhongHoc.includes(ph.IDPhongHoc);
+        return !idPhongHocRe.includes(ph.IDPhongHoc);
       })
       //gv
       let resultGV = await GIANGVIEN_MODEL.getList();
@@ -101,12 +115,12 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
           }
         }
       ]);
-      let idGiangVien = [];
       for (let index = 0; index < dataGV.length; index++) {
-        idGiangVien.push(dataGV[index].IDGiangVien);
+        if(!idGiangVienRe.includes(dataGV[index].IDGiangVien))
+        idGiangVienRe.push(dataGV[index].IDGiangVien);
       }
       resultGV = resultGV.filter(gv => {
-        return !idGiangVien.includes(gv.IDGiangVien);
+        return !idGiangVienRe.includes(gv.IDGiangVien);
       })
       return resolve({ error: false, ListGiangVien: resultGV, ListPhongHoc: resultPH });
     });
@@ -115,14 +129,13 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
     return new Promise(async resolve => {
       try {
         //Báo bù
-        let resultBaoBu = await BAOBU_MODEL.getbaobuchecklophoc(IDGiangVien,IDPhongHoc,CaHoc,Thu, BatDau, KetThuc);
+        let resultBaoBu = await BAOBU_MODEL.getbaobuchecklophoc(IDGiangVien, IDPhongHoc, CaHoc, Thu, BatDau, KetThuc);
         if (resultBaoBu.error) {
           return resolve({ error: true, message: 'Hệ thống lỗi không thể check phòng học và giảng viên' });
         }
-        let resultphbaobu = resultBaoBu.dataPH.length>0;
-        let resultgvbaobu = resultBaoBu.dataGV.length>0;
-        if(resultphbaobu || resultgvbaobu)
-        {
+        let resultphbaobu = resultBaoBu.dataPH.length > 0;
+        let resultgvbaobu = resultBaoBu.dataGV.length > 0;
+        if (resultphbaobu || resultgvbaobu) {
           return resolve({ error: false, statusPH: resultphbaobu, statusGV: resultgvbaobu });
         }
         let statusPH = false;
@@ -240,6 +253,17 @@ module.exports = class LopHoc extends LOPHOC_MODEL {
   static checkArrPHGV(BatDau, KetThuc, arrPHGV) {
     return new Promise(async resolve => {
       try {
+        let resultBaoBu = await BAOBU_MODEL.getbaobuchecklophoc(arrPHGV.giangvien, arrPHGV.phong, arrPHGV.ca, arrPHGV.thu, BatDau, KetThuc);
+        if (resultBaoBu.error) {
+          return resolve({ error: true, message: 'Hệ thống lỗi không thể check phòng học và giảng viên' });
+        }
+        let resultphbaobu = resultBaoBu.dataPH.length > 0;
+        let resultgvbaobu = resultBaoBu.dataGV.length > 0;
+        if (resultphbaobu || resultgvbaobu) {
+          return resolve({ error: false, statusPH: resultphbaobu, statusGV: resultgvbaobu });
+        }
+
+        //
         let statusPH = false;
         let dataPH = await LOPHOC_MODEL.aggregate([
           {

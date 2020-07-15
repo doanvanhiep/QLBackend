@@ -1,8 +1,34 @@
 const BAOBU_MODEL = require('../database/BaoBu-Coll');
 
 module.exports = class BaoBu extends BAOBU_MODEL {
+    static getbaoburecommend(CaHoc, Thu, BatDau, KetThuc) {
+        return new Promise(async resolve => {
+            try {
+                let data = await BAOBU_MODEL.aggregate([
+                    {
+                        $match:
+                        {
+                            $and: [
+                                { CaHoc: CaHoc },
+                                { Thu: Thu },
+                                { NgayBu: { "$lte": KetThuc } },             //ngày bù <= ngày kết thúc của tuần
+                                { NgayBu: { "$gte": BatDau } },                 // ngày bù >= ngày bắt đầu của tuần
+                            ]
+                        }
+                    }
+                ]);
+                if (!data)
+                    return resolve({ error: true, message: 'Không thể lấy danh sách báo bù' });
+                return resolve({ error: false, data: data })
+            } catch (error) {
+                return resolve({ error: true, message: error.message });
+            }
+        });
+    }
 
-    static getbaobuchecklophoc(IDGiangVien,IDPhong,CaHoc,Thu, BatDau, KetThuc) {
+
+
+    static getbaobuchecklophoc(IDGiangVien, IDPhong, CaHoc, Thu, BatDau, KetThuc) {
         return new Promise(async resolve => {
             try {
                 let dataPH = await BAOBU_MODEL.aggregate([
@@ -10,9 +36,9 @@ module.exports = class BaoBu extends BAOBU_MODEL {
                         $match:
                         {
                             $and: [
-                                { CaHoc:CaHoc},
+                                { CaHoc: CaHoc },
                                 { Thu: Thu },
-                                { IDPhongHoc: parseInt(IDPhong,10) },
+                                { IDPhongHoc: parseInt(IDPhong, 10) },
                                 { NgayBu: { "$lte": KetThuc } },             //ngày bù <= ngày kết thúc của tuần
                                 { NgayBu: { "$gte": BatDau } },                 // ngày bù >= ngày bắt đầu của tuần
                             ]
@@ -20,14 +46,14 @@ module.exports = class BaoBu extends BAOBU_MODEL {
                     }
                 ]);
 
-                let dataGV= await BAOBU_MODEL.aggregate([
+                let dataGV = await BAOBU_MODEL.aggregate([
                     {
                         $match:
                         {
                             $and: [
-                                { CaHoc:CaHoc},
+                                { CaHoc: CaHoc },
                                 { Thu: Thu },
-                                { IDGiangVien: parseInt(IDGiangVien,10) },
+                                { IDGiangVien: parseInt(IDGiangVien, 10) },
                                 { NgayBu: { "$lte": KetThuc } },             //ngày bù <= ngày kết thúc của tuần
                                 { NgayBu: { "$gte": BatDau } },                 // ngày bù >= ngày bắt đầu của tuần
                             ]
@@ -36,7 +62,7 @@ module.exports = class BaoBu extends BAOBU_MODEL {
                 ]);
                 if (!dataPH || !dataPH)
                     return resolve({ error: true, message: 'Không thể lấy danh sách báo bù' });
-                return resolve({ error: false, dataPH: dataPH,dataGV: dataGV })
+                return resolve({ error: false, dataPH: dataPH, dataGV: dataGV })
             } catch (error) {
                 return resolve({ error: true, message: error.message });
             }
@@ -52,7 +78,7 @@ module.exports = class BaoBu extends BAOBU_MODEL {
                         $match:
                         {
                             $and: [
-                                { IDGiangVien: parseInt(IDGiangVien,10) },
+                                { IDGiangVien: parseInt(IDGiangVien, 10) },
                                 { NgayBu: { "$lte": KetThuc } },             //ngày bù <= ngày kết thúc của tuần
                                 { NgayBu: { "$gte": BatDau } },                 // ngày bù >= ngày bắt đầu của tuần
                             ]
@@ -102,8 +128,8 @@ module.exports = class BaoBu extends BAOBU_MODEL {
                         {
                             CaHoc: 1,
                             Thu: 1,
-                            TenPhong:"$ph.TenPhong",
-                            TenLopHocPhan:"$lhp.TenLopHocPhan"
+                            TenPhong: "$ph.TenPhong",
+                            TenLopHocPhan: "$lhp.TenLopHocPhan"
                         }
                     }
                 ]);
@@ -180,7 +206,7 @@ module.exports = class BaoBu extends BAOBU_MODEL {
                             IDLopHoc: 1,
                             IDPhongHoc: 1,
                             CaHoc: 1,
-                            Thu:1,
+                            Thu: 1,
                             NgayBu: 1,
                             GhiChu: 1,
                             TrangThai: 1,
@@ -188,7 +214,7 @@ module.exports = class BaoBu extends BAOBU_MODEL {
                             MaLopHoc: "$LopHoc.MaLopHoc",
                             TenLopHocPhan: "$LopHocPhan.TenLopHocPhan",
                             GiangVien: "$GiangVien.HoTen",
-                            PhongHoc:"$PhongHoc.TenPhong"
+                            PhongHoc: "$PhongHoc.TenPhong"
                         }
                     }
                 ]);
@@ -201,7 +227,7 @@ module.exports = class BaoBu extends BAOBU_MODEL {
         });
     }
 
-    static add({ IDGiangVien, IDLopHoc, IDPhongHoc, CaHoc,Thu, NgayBu, GhiChu }) {
+    static add({ IDGiangVien, IDLopHoc, IDPhongHoc, CaHoc, Thu, NgayBu, GhiChu }) {
         return new Promise(async resolve => {
             try {
                 let lastBaoBu = await BAOBU_MODEL.findOne().sort({ IDBaoBu: -1 });
@@ -210,7 +236,7 @@ module.exports = class BaoBu extends BAOBU_MODEL {
                 if (lastBaoBu != null) {
                     IDBaoBu = lastBaoBu.IDBaoBu + 1;
                 }
-                let BaoBu = new BAOBU_MODEL({ IDBaoBu, IDGiangVien, IDLopHoc, IDPhongHoc, CaHoc,Thu, NgayBu, GhiChu, TrangThai });
+                let BaoBu = new BAOBU_MODEL({ IDBaoBu, IDGiangVien, IDLopHoc, IDPhongHoc, CaHoc, Thu, NgayBu, GhiChu, TrangThai });
                 let saveBaoBu = await BaoBu.save();
                 if (!saveBaoBu) return resolve({ error: true, message: 'Không thể thêm lớp báo bù' });
                 resolve({ error: false, data: BaoBu });
@@ -219,12 +245,12 @@ module.exports = class BaoBu extends BAOBU_MODEL {
             }
         });
     }
-    static update({ IDBaoBu, IDLopHoc, IDPhongHoc, CaHoc,Thu, NgayBu, GhiChu }) {
+    static update({ IDBaoBu, IDLopHoc, IDPhongHoc, CaHoc, Thu, NgayBu, GhiChu }) {
         return new Promise(async resolve => {
             try {
                 let checkID = await BAOBU_MODEL.findOne({ IDBaoBu: IDBaoBu });
                 if (!checkID) return resolve({ error: true, message: 'Không tìm thấy báo bù để sửa' });
-                let updateID = await BAOBU_MODEL.findOneAndUpdate({ IDBaoBu: IDBaoBu }, { IDLopHoc, IDPhongHoc, CaHoc,Thu, NgayBu,  GhiChu }, { new: true });
+                let updateID = await BAOBU_MODEL.findOneAndUpdate({ IDBaoBu: IDBaoBu }, { IDLopHoc, IDPhongHoc, CaHoc, Thu, NgayBu, GhiChu }, { new: true });
                 resolve({ error: false, data: updateID });
             } catch (error) {
                 return resolve({ error: true, message: error.message });
